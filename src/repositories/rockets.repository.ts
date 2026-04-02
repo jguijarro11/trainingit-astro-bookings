@@ -3,6 +3,9 @@ import type { Rocket, CreateRocketDto, UpdateRocketDto } from "../types/rocket.t
 
 const rockets: Rocket[] = [];
 
+const getRocketIndexById = (id: string): number =>
+  rockets.findIndex((rocket) => rocket.id === id);
+
 const findAll = (): Rocket[] => [...rockets];
 
 const findById = (id: string): Rocket | undefined =>
@@ -18,19 +21,29 @@ const create = (dto: CreateRocketDto): Rocket => {
 };
 
 const update = (id: string, dto: UpdateRocketDto): Rocket | undefined => {
-  const index = rockets.findIndex((r) => r.id === id);
+  const index = getRocketIndexById(id);
   if (index === -1) return undefined;
+
   const existing = rockets[index] as Rocket;
   const updated: Rocket = { ...existing, ...dto, id: existing.id };
   rockets[index] = updated;
+
   return updated;
 };
 
 const remove = (id: string): boolean => {
-  const index = rockets.findIndex((r) => r.id === id);
+  const index = getRocketIndexById(id);
   if (index === -1) return false;
+
   rockets.splice(index, 1);
   return true;
 };
 
-export const rocketsRepository = { findAll, findById, findByName, create, update, remove };
+export const rocketsRepository = {
+  findAll,
+  findById,
+  findByName,
+  create,
+  update,
+  remove,
+};

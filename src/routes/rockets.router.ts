@@ -10,40 +10,54 @@ import { rocketsRepository } from "../repositories/rockets.repository.js";
 
 export const rocketsRouter = Router();
 
+type JsonRecord = Record<string, unknown>;
+
+const RANGE_ERROR_MESSAGE = `range must be one of: ${ROCKET_RANGES.join(", ")}.`;
+const getCapacityErrorMessage = (): string =>
+  `capacity must be an integer between ${ROCKET_CAPACITY_MIN} and ${ROCKET_CAPACITY_MAX}.`;
+
+const asJsonRecord = (value: unknown): JsonRecord =>
+  (value as JsonRecord) ?? {};
+
 const isValidRange = (range: unknown): range is (typeof ROCKET_RANGES)[number] =>
   ROCKET_RANGES.includes(range as (typeof ROCKET_RANGES)[number]);
 
 const isValidCapacity = (capacity: unknown): capacity is number =>
   typeof capacity === "number" &&
+  Number.isInteger(capacity) &&
   capacity >= ROCKET_CAPACITY_MIN &&
   capacity <= ROCKET_CAPACITY_MAX;
 
 const validateCreateDto = (body: unknown): CreateRocketDto | string => {
-  const { name, range, capacity } = body as Record<string, unknown>;
+  const { name, range, capacity } = asJsonRecord(body);
+
   if (typeof name !== "string" || name.trim() === "") return "name is required.";
-  if (!isValidRange(range))
-    return `range must be one of: ${ROCKET_RANGES.join(", ")}.`;
-  if (!isValidCapacity(capacity))
-    return `capacity must be an integer between ${ROCKET_CAPACITY_MIN} and ${ROCKET_CAPACITY_MAX}.`;
+
+  if (!isValidRange(range)) return RANGE_ERROR_MESSAGE;
+  if (!isValidCapacity(capacity)) return getCapacityErrorMessage();
+
   return { name: name.trim(), range, capacity };
 };
 
 const validateUpdateDto = (body: unknown): UpdateRocketDto | string => {
-  const { name, range, capacity } = body as Record<string, unknown>;
+  const { name, range, capacity } = asJsonRecord(body);
   const dto: UpdateRocketDto = {};
+
   if (name !== undefined) {
     if (typeof name !== "string" || name.trim() === "") return "name must be a non-empty string.";
     dto.name = name.trim();
   }
+
   if (range !== undefined) {
-    if (!isValidRange(range)) return `range must be one of: ${ROCKET_RANGES.join(", ")}.`;
+    if (!isValidRange(range)) return RANGE_ERROR_MESSAGE;
     dto.range = range;
   }
+
   if (capacity !== undefined) {
-    if (!isValidCapacity(capacity))
-      return `capacity must be an integer between ${ROCKET_CAPACITY_MIN} and ${ROCKET_CAPACITY_MAX}.`;
+    if (!isValidCapacity(capacity)) return getCapacityErrorMessage();
     dto.capacity = capacity;
   }
+
   return dto;
 };
 
@@ -78,16 +92,26 @@ rocketsRouter.post("/", (req: Request, res: Response) => {
 rocketsRouter.put("/:id", (req: Request<{ id: string }>, res: Response) => {
   const { id } = req.params;
   const existing = rocketsRepository.findById(id);
+
   if (!existing) {
     res.status(404).json({ error: `Rocket with id '${id}' not found.` });
     return;
   }
+
   const result = validateUpdateDto(req.body);
+
   if (typeof result === "string") {
     res.status(400).json({ error: result });
     return;
   }
+
   const updated = rocketsRepository.update(id, result);
+
+  if (!updated) {
+    res.status(500).json({ error: "Rocket update failed due to inconsistent state." });
+    return;
+  }
+
   res.json(updated);
 });
 
