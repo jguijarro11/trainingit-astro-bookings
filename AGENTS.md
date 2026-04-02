@@ -57,11 +57,14 @@ npm run test:smoke
 │   ├── routes/                 # Express route handlers
 │   │   ├── health.router.ts
 │   │   └── rockets.router.ts
+│   ├── services/               # Application services
+│   │   └── rockets.service.ts
 │   └── types/                  # TypeScript type definitions
 │       └── rocket.type.ts
 ├── tests/                      # E2E / smoke tests (Playwright)
 │   ├── rockets.spec.ts
 │   └── smoke.spec.ts
+├── test-results/                # Test run outputs
 └── specs/                      # Feature specification documents
     └── rockets.spec.md
 ```
