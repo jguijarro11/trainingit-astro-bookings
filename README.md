@@ -21,6 +21,40 @@ A **backend API** for offering bookings for rocket launches.
 
 ---
 
+## API Reference
+
+### Health
+
+| Method | Path      | Description          | Status |
+|--------|-----------|----------------------|--------|
+| GET    | `/health` | Server health check  | 200    |
+
+### Rockets
+
+| Method | Path            | Description                  | Status |
+|--------|-----------------|------------------------------|--------|
+| GET    | `/rockets`      | List all rockets             | 200    |
+| GET    | `/rockets/:id`  | Get a rocket by ID           | 200    |
+| POST   | `/rockets`      | Create a new rocket          | 201    |
+| PUT    | `/rockets/:id`  | Update a rocket by ID        | 200    |
+| DELETE | `/rockets/:id`  | Delete a rocket by ID        | 204    |
+
+**Rocket model:**
+
+```json
+{
+  "id": "uuid",
+  "name": "Falcon 9",
+  "range": "orbital",
+  "capacity": 8
+}
+```
+
+- `range`: one of `suborbital` | `orbital` | `moon` | `mars`
+- `capacity`: integer between 1 and 10
+
+---
+
 - [Repository at GitHub](https://github.com/AlbertoBasaloLabs/astro-bookings)
 - Default branch: `main`
 
@@ -30,3 +64,4 @@ A **backend API** for offering bookings for rocket launches.
   - [X](https://x.com/albertobasalo)
   - [LinkedIn](https://www.linkedin.com/in/albertobasalo/)
   - [GitHub](https://github.com/albertobasalo)
+
