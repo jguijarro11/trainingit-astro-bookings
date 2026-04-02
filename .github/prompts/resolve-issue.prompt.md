@@ -12,5 +12,5 @@ Resolve the specified issue by programming the solution
 
 ## Contexto
 
-If no issue number is provided, use the first open issue in the repository.
+If no issue number is provided, use the first open issue in the repository or in the .github/issues folder.
 

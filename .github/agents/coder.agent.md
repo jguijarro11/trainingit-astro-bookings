@@ -24,7 +24,7 @@ Do not write tests or documentation at this stage.
 
 ## Context
 
-Your task will be an issue from GitHub.
+Your task will be an issue from GitHub or a specification file.
 
 Ask for the issue ID if not reached.
 
