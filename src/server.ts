@@ -13,4 +13,5 @@ app.use("/rockets", rocketsRouter);
 
 app.listen(PORT, () => {
   console.log(`AstroBookings API running on http://localhost:${PORT}`);
+  console.log(`AstroBookings healthcheck endpoint running on http://localhost:${PORT}/health`);
 });
