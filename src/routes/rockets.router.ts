@@ -6,7 +6,7 @@ import {
   type CreateRocketDto,
   type UpdateRocketDto,
 } from "../types/rocket.type.js";
-import { rocketsRepository } from "../repositories/rockets.repository.js";
+import * as rocketsService from "../services/rockets.service.js";
 
 export const rocketsRouter = Router();
 
@@ -62,12 +62,12 @@ const validateUpdateDto = (body: unknown): UpdateRocketDto | string => {
 };
 
 rocketsRouter.get("/", (_req: Request, res: Response) => {
-  res.json(rocketsRepository.findAll());
+  res.json(rocketsService.getRockets());
 });
 
 rocketsRouter.get("/:id", (req: Request<{ id: string }>, res: Response) => {
   const { id } = req.params;
-  const rocket = rocketsRepository.findById(id);
+  const rocket = rocketsService.getRocketById(id);
   if (!rocket) {
     res.status(404).json({ error: `Rocket with id '${id}' not found.` });
     return;
@@ -81,23 +81,16 @@ rocketsRouter.post("/", (req: Request, res: Response) => {
     res.status(400).json({ error: result });
     return;
   }
-  if (rocketsRepository.findByName(result.name)) {
-    res.status(409).json({ error: `Rocket with name '${result.name}' already exists.` });
+  const rocket = rocketsService.createRocket(result);
+  if (typeof rocket === "string") {
+    res.status(409).json({ error: rocket });
     return;
   }
-  const rocket = rocketsRepository.create(result);
   res.status(201).json(rocket);
 });
 
 rocketsRouter.put("/:id", (req: Request<{ id: string }>, res: Response) => {
   const { id } = req.params;
-  const existing = rocketsRepository.findById(id);
-
-  if (!existing) {
-    res.status(404).json({ error: `Rocket with id '${id}' not found.` });
-    return;
-  }
-
   const result = validateUpdateDto(req.body);
 
   if (typeof result === "string") {
@@ -105,10 +98,15 @@ rocketsRouter.put("/:id", (req: Request<{ id: string }>, res: Response) => {
     return;
   }
 
-  const updated = rocketsRepository.update(id, result);
+  const updated = rocketsService.updateRocket(id, result);
 
-  if (!updated) {
-    res.status(500).json({ error: "Rocket update failed due to inconsistent state." });
+  if (updated === undefined) {
+    res.status(404).json({ error: `Rocket with id '${id}' not found.` });
+    return;
+  }
+
+  if (typeof updated === "string") {
+    res.status(500).json({ error: updated });
     return;
   }
 
@@ -117,7 +115,7 @@ rocketsRouter.put("/:id", (req: Request<{ id: string }>, res: Response) => {
 
 rocketsRouter.delete("/:id", (req: Request<{ id: string }>, res: Response) => {
   const { id } = req.params;
-  const removed = rocketsRepository.remove(id);
+  const removed = rocketsService.deleteRocket(id);
   if (!removed) {
     res.status(404).json({ error: `Rocket with id '${id}' not found.` });
     return;
