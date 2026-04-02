@@ -1,6 +1,6 @@
 {
   "name": "trainingit-astro-bookings",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Backend API for rocket launch bookings",
   "type": "module",
   "main": "dist/index.js",

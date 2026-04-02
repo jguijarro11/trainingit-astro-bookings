@@ -57,10 +57,10 @@ Notes
 
 Checklist
 ---------
-- [ ] Add `src/types/launch.type.ts`
-- [ ] Add `src/repositories/launches.repository.ts`
-- [ ] Add `src/services/launches.service.ts`
-- [ ] Add `src/routes/launches.router.ts`
-- [ ] Mount launches router in `src/server.ts`
-- [ ] Add end-to-end coverage for launches
-- [ ] Update `README.md`
+- [x] Add `src/types/launch.type.ts`
+- [x] Add `src/repositories/launches.repository.ts`
+- [x] Add `src/services/launches.service.ts`
+- [x] Add `src/routes/launches.router.ts`
+- [x] Mount launches router in `src/server.ts`
+- [x] Add end-to-end coverage for launches
+- [x] Update `README.md`

@@ -53,6 +53,45 @@ A **backend API** for offering bookings for rocket launches.
 - `range`: one of `suborbital` | `orbital` | `moon` | `mars`
 - `capacity`: integer between 1 and 10
 
+### Launches
+
+| Method | Path                      | Description                          | Status |
+|--------|---------------------------|--------------------------------------|--------|
+| GET    | `/launches`               | List all launches                    | 200    |
+| GET    | `/launches/:id`           | Get a launch by ID                   | 200    |
+| POST   | `/launches`               | Create a launch for an existing rocket | 201  |
+| PATCH  | `/launches/:id`           | Update editable launch fields        | 200    |
+| PATCH  | `/launches/:id/status`    | Transition launch status             | 200    |
+
+**Launch model:**
+
+```json
+{
+  "id": "uuid",
+  "rocketId": "uuid",
+  "scheduledAt": "2026-05-10T09:00:00.000Z",
+  "pricePerSeat": 250000,
+  "minimumPassengers": 4,
+  "totalSeats": 8,
+  "availableSeats": 8,
+  "status": "scheduled"
+}
+```
+
+- `scheduledAt`: future ISO-8601 timestamp.
+- `pricePerSeat`: positive number.
+- `minimumPassengers`: integer between 1 and `totalSeats`.
+- `totalSeats`: copied from the rocket capacity at creation time (immutable).
+- `availableSeats`: initialized to `totalSeats`; decremented by future bookings.
+- `status`: one of `scheduled` | `confirmed` | `suspended` | `successful` | `cancelled`.
+
+**Status lifecycle:**
+
+- `scheduled` → `confirmed` | `suspended` | `cancelled`
+- `confirmed` → `successful` | `suspended` | `cancelled`
+- `suspended` → `scheduled` | `cancelled`
+- `successful` and `cancelled` are terminal states.
+
 ---
 
 ## Logging
