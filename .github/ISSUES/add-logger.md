@@ -51,8 +51,8 @@ Notes
 
 Checklist
 ---------
-- [ ] Add `src/logger.ts` with wrappers
+- [x] Add `src/logger.ts` with wrappers
 - [ ] Add unit tests for logger
-- [ ] Replace high-priority `console.log` calls in core files
+- [x] Replace high-priority `console.log` calls in core files
 - [ ] Document `LOG_LEVEL` in README
 - [ ] Open PR with implementation

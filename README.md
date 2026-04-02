@@ -55,6 +55,31 @@ A **backend API** for offering bookings for rocket launches.
 
 ---
 
+## Logging
+
+The API uses a centralized console logger.
+
+- Logger module: `src/logger.ts`
+- Available methods: `info`, `warn`, `error`, `debug`
+- Output format: `[<ISO_TIMESTAMP>] [<LEVEL>] message`
+
+### `LOG_LEVEL`
+
+Use `LOG_LEVEL` to control verbosity:
+
+- `error`
+- `warn`
+- `info` (default)
+- `debug`
+
+Example:
+
+```bash
+LOG_LEVEL=debug npm run dev
+```
+
+---
+
 - [Repository at GitHub](https://github.com/jguijarro11/trainingit-astro-bookings)
 - Default branch: `main`
 

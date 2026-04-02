@@ -17,7 +17,7 @@
 - **Database**: In-memory (no database required at the initial stage)
 - **Security**: None required at the initial stage
 - **Testing**: Node.js built-in test runner (unit) + Playwright 1.59 (E2E/smoke)
-- **Logging**: console.log (basic stdout logging)
+- **Logging**: Centralized console logger (`src/logger.ts`) with level filtering via `LOG_LEVEL`
 
 ### Development workflow
 
@@ -50,6 +50,7 @@ npm run test:smoke
 ├── playwright.config.ts        # Playwright E2E test config
 ├── src/
 │   ├── index.ts                # Entry point
+│   ├── logger.ts               # Centralized logger utility
 │   ├── server.ts               # Express server setup and startup
 │   ├── repositories/           # Data access layer (in-memory)
 │   │   └── rockets.repository.ts
