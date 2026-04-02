@@ -55,13 +55,11 @@ A **backend API** for offering bookings for rocket launches.
 
 ---
 
-- [Repository at GitHub](https://github.com/AlbertoBasaloLabs/astro-bookings)
+- [Repository at GitHub](https://github.com/jguijarro11/trainingit-astro-bookings)
 - Default branch: `main`
 
-- **Author**: [Alberto Basalo](https://albertobasalo.dev)
-- **Ai Code Academy en Español**: [AI code Academy](https://aicode.academy)
+- **Author**: [Jorge Guijarro](https://www.linkedin.com/in/jorge-guijarro-del-nuevo/)
 - **Socials**:
-  - [X](https://x.com/albertobasalo)
-  - [LinkedIn](https://www.linkedin.com/in/albertobasalo/)
-  - [GitHub](https://github.com/albertobasalo)
+  - [LinkedIn](https://www.linkedin.com/in/jorge-guijarro-del-nuevo/)
+  - [GitHub](https://github.com/jguijarro11)
 
