@@ -3,8 +3,9 @@ import {
   ROCKET_RANGES,
   ROCKET_CAPACITY_MIN,
   ROCKET_CAPACITY_MAX,
+  type CreateRocketDto,
+  type UpdateRocketDto,
 } from "../types/rocket.type.js";
-import type { CreateRocketDto, UpdateRocketDto } from "../types/rocket.type.js";
 import { rocketsRepository } from "../repositories/rockets.repository.js";
 
 export const rocketsRouter = Router();
@@ -46,12 +47,10 @@ const validateUpdateDto = (body: unknown): UpdateRocketDto | string => {
   return dto;
 };
 
-// GET /rockets
 rocketsRouter.get("/", (_req: Request, res: Response) => {
   res.json(rocketsRepository.findAll());
 });
 
-// GET /rockets/:id
 rocketsRouter.get("/:id", (req: Request<{ id: string }>, res: Response) => {
   const { id } = req.params;
   const rocket = rocketsRepository.findById(id);
@@ -62,7 +61,6 @@ rocketsRouter.get("/:id", (req: Request<{ id: string }>, res: Response) => {
   res.json(rocket);
 });
 
-// POST /rockets
 rocketsRouter.post("/", (req: Request, res: Response) => {
   const result = validateCreateDto(req.body);
   if (typeof result === "string") {
@@ -77,7 +75,6 @@ rocketsRouter.post("/", (req: Request, res: Response) => {
   res.status(201).json(rocket);
 });
 
-// PUT /rockets/:id
 rocketsRouter.put("/:id", (req: Request<{ id: string }>, res: Response) => {
   const { id } = req.params;
   const existing = rocketsRepository.findById(id);
@@ -94,7 +91,6 @@ rocketsRouter.put("/:id", (req: Request<{ id: string }>, res: Response) => {
   res.json(updated);
 });
 
-// DELETE /rockets/:id
 rocketsRouter.delete("/:id", (req: Request<{ id: string }>, res: Response) => {
   const { id } = req.params;
   const removed = rocketsRepository.remove(id);

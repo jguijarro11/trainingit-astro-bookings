@@ -21,8 +21,9 @@ const update = (id: string, dto: UpdateRocketDto): Rocket | undefined => {
   const index = rockets.findIndex((r) => r.id === id);
   if (index === -1) return undefined;
   const existing = rockets[index] as Rocket;
-  rockets[index] = { ...existing, ...dto, id: existing.id } as Rocket;
-  return rockets[index];
+  const updated: Rocket = { ...existing, ...dto, id: existing.id };
+  rockets[index] = updated;
+  return updated;
 };
 
 const remove = (id: string): boolean => {

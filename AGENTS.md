@@ -12,12 +12,12 @@
 ## Technical Implementation
 
 ### Tech Stack
-- **Language**: TypeScript
-- **Framework**: Astro
-- **Database**: None (not required at the initial stage)
-- **Security**: None (not required at the initial stage)
-- **Testing**: TBD
-- **Logging**: TBD
+- **Language**: TypeScript 5.8
+- **Framework**: Express 5.2
+- **Database**: In-memory (no database required at the initial stage)
+- **Security**: None required at the initial stage
+- **Testing**: Node.js built-in test runner (unit) + Playwright 1.59 (E2E/smoke)
+- **Logging**: console.log (basic stdout logging)
 
 ### Development workflow
 
@@ -28,25 +28,41 @@ npm install
 # Build/Compile the project
 npm run build
 
-# Run the project
+# Run the project (development)
 npm run dev
 
-# Test the project
-npm run test
+# Run the project (production, after build)
+npm start
 
-# Deploy the project
-npm run preview
+# Test the project (unit tests)
+npm test
+
+# Test the project (E2E smoke tests)
+npm run test:smoke
 ```
 
 ### Folder structure
 ```text
-.                         # Project root
-├── AGENTS.md             # This file with instructions for AI agents
-├── README.md             # Project documentation
-├── src/                  # Source code
-│   ├── pages/            # Astro pages and API routes
-│   └── components/       # Reusable components
-└── public/               # Static assets
+.                               # Project root
+├── AGENTS.md                   # This file with instructions for AI agents
+├── package.json                # Node.js project config
+├── tsconfig.json               # TypeScript compiler config
+├── playwright.config.ts        # Playwright E2E test config
+├── src/
+│   ├── index.ts                # Entry point
+│   ├── server.ts               # Express server setup and startup
+│   ├── repositories/           # Data access layer (in-memory)
+│   │   └── rockets.repository.ts
+│   ├── routes/                 # Express route handlers
+│   │   ├── health.router.ts
+│   │   └── rockets.router.ts
+│   └── types/                  # TypeScript type definitions
+│       └── rocket.type.ts
+├── tests/                      # E2E / smoke tests (Playwright)
+│   ├── rockets.spec.ts
+│   └── smoke.spec.ts
+└── specs/                      # Feature specification documents
+    └── rockets.spec.md
 ```
 
 ## Environment
@@ -63,10 +79,10 @@ Use slugs with hyphens for any identifiers or non code file names.
 
 Use this table to determine the prefixes:
 
-| Spec        | GitHub Label  | Git Branch    | Commit  |
-|-------------|---------------|---------------|---------|
-| feat-<slug> | enhancement   | feat/<slug>   | feat:   |
-| bug-<slug>  | bug           | fix/<slug>    | fix:    |
-| chore-<slug>| chore         | chore/<slug>  | chore:  |
+| Spec         | GitHub Label | Git Branch   | Commit |
+|--------------|--------------|--------------|--------|
+| feat-<slug>  | enhancement  | feat/<slug>  | feat:  |
+| bug-<slug>   | bug          | fix/<slug>   | fix:   |
+| chore-<slug> | chore        | chore/<slug> | chore: |
 
-Default git branch is `main` unless specified otherwise.
+Default git branch is `main`.
