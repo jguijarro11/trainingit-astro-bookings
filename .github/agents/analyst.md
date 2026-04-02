@@ -4,8 +4,11 @@ description: Internal worker that generates or refines the Product Requirements 
 argument-hint: Provide an idea, briefing document or the current project to start the analysis.
 model: Auto (copilot)
 tools: ['vscode/askQuestions', 'read', 'edit', 'search', 'web', 'todo']
-user-invocable: false
-disable-model-invocation: true
+handoffs: 
+  - label: Start Implementation
+    agent: Coder
+    prompt: Implement the plan based on the generated PRD
+    send: true
 ---
 # Analyst
 
