@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-04-02
+
+### Added
+
+- **Launch Management API** (`/launches`) with the following operations:
+  - `POST /launches` — Create a launch for an existing rocket (returns 201).
+  - `GET /launches` — List all launches (returns 200).
+  - `GET /launches/:id` — Get a launch by ID (returns 200).
+  - `PATCH /launches/:id` — Update editable launch fields while scheduled (returns 200).
+  - `PATCH /launches/:id/status` — Transition launch status according to lifecycle rules (returns 200).
+- Launch domain model with `rocketId`, `scheduledAt`, `pricePerSeat`, `minimumPassengers`, `totalSeats`, `availableSeats`, and `status`.
+- Lifecycle transition rules for `scheduled`, `confirmed`, `suspended`, `successful`, and `cancelled` launch states.
+- In-memory launches repository and service layer enforcing rocket existence, capacity snapshotting, editability rules, and status transition validation.
+- End-to-end Playwright coverage for launches acceptance criteria EARS-01 to EARS-14.
+- Product specification for launches in `specs/launches.spec.md` and implementation plan in `.github/ISSUES/feat-launches-endpoint.md`.
+
+### Changed
+
+- API reference in `README.md` now documents the launches endpoints, launch resource model, and status lifecycle.
+
 ## [1.1.0] - 2026-04-02
 
 ### Added
