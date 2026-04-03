@@ -16,7 +16,7 @@ Use terminal git commands as needed.
 
 ## Step 1: Update Documentation
 
-- [ ] [AGENTS.md](/AGENTS.md) : update to reflect changes.
+- [ ] [AGENTS.md](../../../AGENTS.md) : update to reflect changes.
   - tech stack, 
   - setup/dev instructions, 
   - folder structure are accurate.
@@ -26,7 +26,7 @@ Use terminal git commands as needed.
 
 - [ ] Commit all pending changes grouping them by type of change.
 - [ ] Use [Semantic Versioning (SemVer)](./sem-ver.md) principles.
-- [ ] [CHANGELOG.md](/CHANGELOG.md) : Add entries to based on commit history.
+- [ ] [CHANGELOG.md](../../../CHANGELOG.md) : Add entries to based on commit history.
 
 ## Step 3: Versioning
 
