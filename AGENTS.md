@@ -48,26 +48,58 @@ npm run test:smoke
 ├── package.json                # Node.js project config
 ├── tsconfig.json               # TypeScript compiler config
 ├── playwright.config.ts        # Playwright E2E test config
+├── .agents/
+│   ├── PRD.md                  # Product Requirements Document
+│   └── ADD.md                  # Architecture Design Document
+├── specs/                      # Feature specification documents
+│   ├── rockets.spec.md
+│   └── launches.spec.md
 ├── src/
 │   ├── index.ts                # Entry point
 │   ├── logger.ts               # Centralized logger utility
 │   ├── server.ts               # Express server setup and startup
 │   ├── repositories/           # Data access layer (in-memory)
-│   │   └── rockets.repository.ts
+│   │   ├── rockets.repository.ts
+│   │   └── launches.repository.ts
 │   ├── routes/                 # Express route handlers
 │   │   ├── health.router.ts
-│   │   └── rockets.router.ts
+│   │   ├── rockets.router.ts
+│   │   └── launches.router.ts
 │   ├── services/               # Application services
-│   │   └── rockets.service.ts
+│   │   ├── rockets.service.ts
+│   │   └── launches.service.ts
 │   └── types/                  # TypeScript type definitions
-│       └── rocket.type.ts
+│       ├── rocket.type.ts
+│       └── launch.type.ts
 ├── tests/                      # E2E / smoke tests (Playwright)
+│   ├── launches.spec.ts
 │   ├── rockets.spec.ts
 │   └── smoke.spec.ts
 ├── test-results/                # Test run outputs
-└── specs/                      # Feature specification documents
-    └── rockets.spec.md
+└── CHANGELOG.md                # Project changelog
 ```
+
+### Architecture Guardrails
+
+- Follow the modular layered architecture defined in `.agents/ADD.md`:
+    - `routes` for HTTP transport and validation only.
+    - `services` for business rules and orchestration.
+    - `repositories` for persistence concerns only.
+- Keep domain modules isolated by feature (`rockets`, `launches`, future `customers`, `bookings`, `payments`).
+- Do not call repositories directly from routes.
+- Return typed domain/service errors and map them to HTTP responses at route level.
+- Keep launch lifecycle transitions centralized in `launches.service.ts` using explicit transition maps.
+- Preserve launch seat invariants:
+    - `totalSeats` is immutable after launch creation.
+    - `availableSeats` cannot become negative.
+- For booking implementation, enforce this order:
+    - Validate customer and launch constraints.
+    - Validate seat availability.
+    - Process payment through a dedicated adapter.
+    - Persist booking only when payment succeeds.
+    - Decrement `availableSeats` only after booking persistence.
+- Use adapter pattern for external integrations (starting with mock payment gateway) to decouple domain logic from providers.
+- Keep all code and documentation in English.
 
 ## Environment
 - Code and documentation must be in English.
