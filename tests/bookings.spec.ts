@@ -172,4 +172,126 @@ test.describe("Bookings API", () => {
     expect(body.length).toBe(2);
     expect(body.every((booking: { launchId: string }) => booking.launchId === launch.id)).toBe(true);
   });
+
+  const transitionLaunchStatus = async (
+    request: Parameters<typeof test>[0]["request"],
+    launchId: string,
+    status: string,
+  ) => {
+    const response = await request.patch(`${LAUNCHES_PATH}/${launchId}/status`, { data: { status } });
+    expect(response.status()).toBe(200);
+  };
+
+  test("EARS-01-status: booking on scheduled launch returns 201", async ({ request }) => {
+    const rocket = await createRocket(request);
+    const launch = await createLaunch(request, rocket.id);
+    const customer = await createCustomer(request);
+
+    const response = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
+      data: { customerEmail: customer.email, seats: 1 },
+    });
+
+    expect(response.status()).toBe(201);
+  });
+
+  test("EARS-02-status: booking on confirmed launch returns 201", async ({ request }) => {
+    const rocket = await createRocket(request);
+    const launch = await createLaunch(request, rocket.id);
+    const customer = await createCustomer(request);
+    await transitionLaunchStatus(request, launch.id, "confirmed");
+
+    const response = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
+      data: { customerEmail: customer.email, seats: 1 },
+    });
+
+    expect(response.status()).toBe(201);
+  });
+
+  test("EARS-08-status: confirmed launch still rejects overbooking", async ({ request }) => {
+    const rocket = await createRocket(request, 2);
+    const launch = await createLaunch(request, rocket.id, 250000, 1);
+    const customer = await createCustomer(request);
+    await transitionLaunchStatus(request, launch.id, "confirmed");
+
+    const response = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
+      data: { customerEmail: customer.email, seats: 3 },
+    });
+
+    expect(response.status()).toBe(409);
+    const body = await response.json();
+    expect(body.error).toContain("exceed");
+
+    const launchResponse = await request.get(`${LAUNCHES_PATH}/${launch.id}`);
+    const updatedLaunch = await launchResponse.json();
+    expect(updatedLaunch.availableSeats).toBe(2);
+  });
+
+  test("EARS-03-status: booking on suspended launch returns 409", async ({ request }) => {
+    const rocket = await createRocket(request);
+    const launch = await createLaunch(request, rocket.id);
+    const customer = await createCustomer(request);
+    await transitionLaunchStatus(request, launch.id, "suspended");
+
+    const response = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
+      data: { customerEmail: customer.email, seats: 1 },
+    });
+
+    expect(response.status()).toBe(409);
+    const body = await response.json();
+    expect(body.error).toContain("suspended");
+  });
+
+  test("EARS-04-status: booking on successful launch returns 409", async ({ request }) => {
+    const rocket = await createRocket(request);
+    const launch = await createLaunch(request, rocket.id);
+    const customer = await createCustomer(request);
+    await transitionLaunchStatus(request, launch.id, "confirmed");
+    await transitionLaunchStatus(request, launch.id, "successful");
+
+    const response = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
+      data: { customerEmail: customer.email, seats: 1 },
+    });
+
+    expect(response.status()).toBe(409);
+    const body = await response.json();
+    expect(body.error).toContain("successful");
+  });
+
+  test("EARS-05-status: booking on cancelled launch returns 409", async ({ request }) => {
+    const rocket = await createRocket(request);
+    const launch = await createLaunch(request, rocket.id);
+    const customer = await createCustomer(request);
+    await transitionLaunchStatus(request, launch.id, "cancelled");
+
+    const response = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
+      data: { customerEmail: customer.email, seats: 1 },
+    });
+
+    expect(response.status()).toBe(409);
+    const body = await response.json();
+    expect(body.error).toContain("cancelled");
+  });
+
+  test("EARS-06/07-status: rejected booking does not persist or decrement seats", async ({ request }) => {
+    const rocket = await createRocket(request, 8);
+    const launch = await createLaunch(request, rocket.id);
+    const customer = await createCustomer(request);
+    await transitionLaunchStatus(request, launch.id, "suspended");
+
+    const preLaunchResponse = await request.get(`${LAUNCHES_PATH}/${launch.id}`);
+    const preLaunch = await preLaunchResponse.json();
+
+    const failedResponse = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
+      data: { customerEmail: customer.email, seats: 2 },
+    });
+    expect(failedResponse.status()).toBe(409);
+
+    const postLaunchResponse = await request.get(`${LAUNCHES_PATH}/${launch.id}`);
+    const postLaunch = await postLaunchResponse.json();
+    expect(postLaunch.availableSeats).toBe(preLaunch.availableSeats);
+
+    const bookingsResponse = await request.get(`${LAUNCHES_PATH}/${launch.id}/bookings`);
+    const bookings = await bookingsResponse.json();
+    expect(bookings.length).toBe(0);
+  });
 });

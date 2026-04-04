@@ -1,8 +1,8 @@
 # Booking Status Eligibility Specification
 
 - **Type**: bug
-- **Status**: Planned
-- **Feature Status**: NotStarted
+- **Status**: Verified
+- **Feature Status**: InProgress
 
 ## Problem Description
 

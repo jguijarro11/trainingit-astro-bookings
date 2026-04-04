@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import type { Booking, CreateBookingDto, BookingError } from "../types/booking.type.js";
 import { SEATS_MIN } from "../types/booking.type.js";
+import { BOOKABLE_STATUSES } from "../types/launch.type.js";
 import { bookingsRepository } from "../repositories/bookings.repository.js";
 import { launchesRepository } from "../repositories/launches.repository.js";
 import { customersRepository } from "../repositories/customers.repository.js";
@@ -22,6 +23,10 @@ export const createBooking = (dto: CreateBookingDto): Booking | BookingError => 
   const launch = launchesRepository.findById(dto.launchId);
   if (!launch) {
     return { statusCode: 404, message: `Launch with id '${dto.launchId}' not found.` };
+  }
+
+  if (!BOOKABLE_STATUSES.includes(launch.status as (typeof BOOKABLE_STATUSES)[number])) {
+    return { statusCode: 409, message: `Launch is not open for bookings (status: ${launch.status}).` };
   }
 
   if (!customersRepository.findByEmail(dto.customerEmail)) {

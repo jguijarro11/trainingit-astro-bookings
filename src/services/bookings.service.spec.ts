@@ -43,6 +43,11 @@ const LAUNCH: Launch = {
   status: "scheduled",
 };
 
+const CONFIRMED_LAUNCH: Launch = { ...LAUNCH, status: "confirmed" };
+const SUSPENDED_LAUNCH: Launch = { ...LAUNCH, status: "suspended" };
+const SUCCESSFUL_LAUNCH: Launch = { ...LAUNCH, status: "successful" };
+const CANCELLED_LAUNCH: Launch = { ...LAUNCH, status: "cancelled" };
+
 const CUSTOMER: Customer = {
   email: "jane@example.com",
   name: "Jane Doe",
@@ -128,6 +133,59 @@ describe("bookings service", () => {
       createBooking({ launchId: "launch-1", customerEmail: "jane@example.com", seats: 2 });
 
       expect(callOrder).toEqual(["create", "decrement"]);
+    });
+
+    it("returns a booking for confirmed launch (EARS-02)", () => {
+      mockedLaunches.findById.mockReturnValue(CONFIRMED_LAUNCH);
+      mockedCustomers.findByEmail.mockReturnValue(CUSTOMER);
+      mockedBookings.create.mockImplementation((b) => b);
+
+      const result = createBooking({ launchId: "launch-1", customerEmail: "jane@example.com", seats: 2 });
+
+      expect(result).toMatchObject({ launchId: "launch-1", seats: 2 });
+      expect(mockedBookings.create).toHaveBeenCalledOnce();
+      expect(mockedLaunches.decrementSeats).toHaveBeenCalledOnce();
+    });
+
+    it("returns 409 for suspended launch without persisting (EARS-03)", () => {
+      mockedLaunches.findById.mockReturnValue(SUSPENDED_LAUNCH);
+
+      const result = createBooking({ launchId: "launch-1", customerEmail: "jane@example.com", seats: 2 });
+
+      expect(result).toEqual({ statusCode: 409, message: expect.stringContaining("suspended") });
+      expect(mockedBookings.create).not.toHaveBeenCalled();
+      expect(mockedLaunches.decrementSeats).not.toHaveBeenCalled();
+    });
+
+    it("returns 409 for successful launch without persisting (EARS-04)", () => {
+      mockedLaunches.findById.mockReturnValue(SUCCESSFUL_LAUNCH);
+
+      const result = createBooking({ launchId: "launch-1", customerEmail: "jane@example.com", seats: 2 });
+
+      expect(result).toEqual({ statusCode: 409, message: expect.stringContaining("successful") });
+      expect(mockedBookings.create).not.toHaveBeenCalled();
+      expect(mockedLaunches.decrementSeats).not.toHaveBeenCalled();
+    });
+
+    it("returns 409 for cancelled launch without persisting (EARS-05)", () => {
+      mockedLaunches.findById.mockReturnValue(CANCELLED_LAUNCH);
+
+      const result = createBooking({ launchId: "launch-1", customerEmail: "jane@example.com", seats: 2 });
+
+      expect(result).toEqual({ statusCode: 409, message: expect.stringContaining("cancelled") });
+      expect(mockedBookings.create).not.toHaveBeenCalled();
+      expect(mockedLaunches.decrementSeats).not.toHaveBeenCalled();
+    });
+
+    it("preserves overbooking protection for confirmed launch (EARS-08)", () => {
+      mockedLaunches.findById.mockReturnValue({ ...CONFIRMED_LAUNCH, availableSeats: 1 });
+      mockedCustomers.findByEmail.mockReturnValue(CUSTOMER);
+
+      const result = createBooking({ launchId: "launch-1", customerEmail: "jane@example.com", seats: 2 });
+
+      expect(result).toEqual({ statusCode: 409, message: expect.stringContaining("exceed") });
+      expect(mockedBookings.create).not.toHaveBeenCalled();
+      expect(mockedLaunches.decrementSeats).not.toHaveBeenCalled();
     });
   });
 
