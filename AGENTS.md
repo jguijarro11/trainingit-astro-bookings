@@ -131,3 +131,21 @@ Use this table to determine the prefixes:
 | chore-<slug> | chore        | chore/<slug> | chore: |
 
 Default git branch is `main`.
+
+### Agent Guidelines
+
+- **Use context**: read `.agents/` docs before acting.
+- **Single responsibility**: each agent performs one role.
+- **Short messages**: prefer concise, actionable replies.
+- **Respect guardrails**: follow architecture and service layers.
+- **Language**: write code and docs in English.
+- **Communication**: ask one clarifying question when needed.
+- **Proposals**: create PRs for changes with `chore:` commits.
+- **Safety**: do not store secrets in repository files.
+- **Testing**: add unit tests for logic changes.
+
+### Where to start
+
+- Read `.agents/project/PRD.md` for product goals.
+- Check `.agents/project/ADD.md` for architecture notes.
+- Specs live in `.agents/specs/` and guide implementation.
