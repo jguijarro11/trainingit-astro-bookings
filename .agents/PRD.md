@@ -34,7 +34,7 @@ AstroBookings provides operations managers with tools to manage the rocket fleet
 
 ### FR5: Seat Booking
 - A registered customer can book one or more seats on a launch. The booking validates that the requested seat count does not exceed the available seats on the launch. Available seats are decremented upon successful booking.
-- **Status**: NotStarted
+- **Status**: Implemented
 
 ### FR6: Payment Processing
 - Customers are billed upon booking through a mock payment gateway. A booking is only persisted after the payment is accepted. Failed payments result in a rejected booking with no seat decrement.

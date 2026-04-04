@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-04-04
+
+### Added
+
+- **Seat Booking API** (`/launches/:id/bookings`) with the following operations:
+  - `POST /launches/:id/bookings` - Create a booking for a launch and return booking details (201).
+  - `GET /launches/:id/bookings` - List bookings for a launch (200).
+- Booking domain model and DTOs in `src/types/booking.type.ts`.
+- In-memory bookings repository (`findByLaunchId`, `create`).
+- Bookings service orchestration validating launch/customer existence, seat constraints, and pricing snapshots.
+- Unit tests for bookings service covering happy path and validation/conflict scenarios.
+- End-to-end Playwright coverage for bookings acceptance criteria EARS-01 to EARS-09.
+
+### Changed
+
+- Launches repository now supports seat decrement operations for successful bookings.
+- Launches router now includes nested bookings endpoints and request validation for booking payloads.
+- Internal refactor to reduce duplication in launch update logic while preserving behavior.
+
 ## [1.3.0] - 2026-04-04
 
 ### Added

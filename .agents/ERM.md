@@ -30,6 +30,19 @@
 - Email is the unique customer identifier.
 - Email matching is case-insensitive (stored and compared normalized).
 
+### Booking
+- **id**: UUID (primary key, generated)
+- **launchId**: UUID (foreign key → Launch)
+- **customerEmail**: string (foreign key → Customer.email)
+- **seats**: integer (positive, <= launch.availableSeats at booking time)
+- **pricePerSeat**: number (snapshot of Launch.pricePerSeat at booking time)
+- **totalAmount**: number (computed: seats × pricePerSeat)
+- **createdAt**: ISO-8601 DateTime (set at creation)
+
+- `seats` must be a positive integer and cannot exceed the launch `availableSeats` at the time of booking.
+- `pricePerSeat` and `totalAmount` are snapshots; they do not change if the launch price is later updated.
+- A booking is only persisted after seat availability is confirmed.
+
 ## Relationships
 
 ```mermaid
@@ -58,7 +71,19 @@ erDiagram
         string phone
     }
 
+    BOOKING {
+        string id PK
+        string launchId FK
+        string customerEmail FK
+        int seats
+        number pricePerSeat
+        number totalAmount
+        datetime createdAt
+    }
+
     ROCKET ||--o{ LAUNCH : "is assigned to"
+    LAUNCH ||--o{ BOOKING : "has"
+    CUSTOMER ||--o{ BOOKING : "makes"
 ```
 
-> Booking and Payment entities will be added when FR5 and FR6 are specified. The `CUSTOMER` and `LAUNCH` relationship will be established through a future `BOOKING` entity.
+> Payment entity will be added when FR6 is specified.

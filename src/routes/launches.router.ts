@@ -9,10 +9,16 @@ import {
   type LaunchStatus,
   type LaunchError,
 } from "../types/launch.type.js";
-
-const isLaunchError = (value: unknown): value is LaunchError =>
-  typeof value === "object" && value !== null && "statusCode" in value && "message" in value;
+import { SEATS_MIN, type BookingError, type CreateBookingDto } from "../types/booking.type.js";
 import * as launchesService from "../services/launches.service.js";
+import * as bookingsService from "../services/bookings.service.js";
+
+const isHttpError = (value: unknown): value is { statusCode: number; message: string } =>
+  typeof value === "object" && value !== null && "statusCode" in value && "message" in value;
+
+const isLaunchError = (value: unknown): value is LaunchError => isHttpError(value);
+
+const isBookingError = (value: unknown): value is BookingError => isHttpError(value);
 
 export const launchesRouter = Router();
 
@@ -152,4 +158,42 @@ launchesRouter.patch("/:id/status", (req: Request<{ id: string }>, res: Response
     return;
   }
   res.json(updated);
+});
+
+const validateCreateBookingDto = (
+  body: unknown,
+): Pick<CreateBookingDto, "customerEmail" | "seats"> | string => {
+  const { customerEmail, seats } = asJsonRecord(body);
+
+  if (typeof customerEmail !== "string" || customerEmail.trim() === "")
+    return "customerEmail is required.";
+  if (!Number.isInteger(seats) || (seats as number) < SEATS_MIN)
+    return `seats must be a positive integer (minimum ${SEATS_MIN}).`;
+
+  return { customerEmail: (customerEmail as string).trim(), seats: seats as number };
+};
+
+launchesRouter.post("/:id/bookings", (req: Request<{ id: string }>, res: Response) => {
+  const { id } = req.params;
+  const dto = validateCreateBookingDto(req.body);
+  if (typeof dto === "string") {
+    res.status(400).json({ error: dto });
+    return;
+  }
+  const result = bookingsService.createBooking({ launchId: id, ...dto });
+  if (isBookingError(result)) {
+    res.status(result.statusCode).json({ error: result.message });
+    return;
+  }
+  res.status(201).json(result);
+});
+
+launchesRouter.get("/:id/bookings", (req: Request<{ id: string }>, res: Response) => {
+  const { id } = req.params;
+  const launch = launchesService.getLaunchById(id);
+  if (!launch) {
+    res.status(404).json({ error: `Launch with id '${id}' not found.` });
+    return;
+  }
+  res.json(bookingsService.getBookingsByLaunch(id));
 });

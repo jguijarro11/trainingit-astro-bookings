@@ -120,6 +120,41 @@ A **backend API** for offering bookings for rocket launches.
 - Invalid or missing `email`, `name`, or `phone` returns `400`.
 - Unknown customer email on `GET /customers/:email` returns `404`.
 
+### Bookings
+
+| Method | Path                           | Description                                | Status |
+|--------|--------------------------------|--------------------------------------------|--------|
+| POST   | `/launches/:id/bookings`       | Create a booking for a launch              | 201    |
+| GET    | `/launches/:id/bookings`       | List bookings for a launch                 | 200    |
+
+**Booking model:**
+
+```json
+{
+  "id": "uuid",
+  "launchId": "uuid",
+  "customerEmail": "jane.doe@example.com",
+  "seats": 3,
+  "pricePerSeat": 250000,
+  "totalAmount": 750000,
+  "createdAt": "2026-04-04T12:00:00.000Z"
+}
+```
+
+- `launchId`: target launch identifier.
+- `customerEmail`: registered customer email.
+- `seats`: positive integer number of seats.
+- `pricePerSeat`: launch price snapshot at booking time.
+- `totalAmount`: computed as `seats * pricePerSeat`.
+
+**Validation and conflicts:**
+
+- Unknown launch on booking creation returns `404`.
+- Unknown customer on booking creation returns `404`.
+- Invalid `seats` (non-positive integer) returns `400`.
+- Overbooking (`seats` > `availableSeats`) returns `409`.
+- Successful booking decrements launch `availableSeats` exactly by booked seats.
+
 ---
 
 ## Logging
