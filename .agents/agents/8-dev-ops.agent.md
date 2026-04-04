@@ -1,9 +1,11 @@
 --- 
-name : DevOps
+name : 8-dev-ops
 description : Internal worker that manages CI/CD pipelines, documentation and release processes.
 argument-hint: Provide the issue number or specification file to be released.
 model: Auto (copilot)
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'github/*', 'todo']
+user-invocable: false
+disable-model-invocation: true
 ---
 
 # DevOps Agent

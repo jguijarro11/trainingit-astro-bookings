@@ -1,14 +1,11 @@
 ---
-name: Tester
+name: 6-tester
 description: Internal worker that writes and runs tests to verify a specification implementation.
 argument-hint: Provide the issue number or specification file to start testing
 model: Auto (copilot)
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'github/*', 'todo']
-handoffs: 
-  - label: Clean
-    agent: Cleaner
-    prompt: Clean up the implementation
-    send: true
+user-invocable: false
+disable-model-invocation: true
 ---
 # Tester
 

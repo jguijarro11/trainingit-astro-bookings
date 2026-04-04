@@ -1,14 +1,11 @@
 ---
-name: Coder
+name: 5-coder
 description: Internal worker that writes code to implement the plan, following skilled best practices.
 argument-hint: Provide the plan file with steps and tasks to start coding
 model: Claude Sonnet 4.6 (copilot)
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'todo']
-handoffs: 
-  - label: Verify Implementation
-    agent: Tester
-    prompt: Write and run test to verify the implementation
-    send: true
+user-invocable: false
+disable-model-invocation: true
 ---
 # Coder
 

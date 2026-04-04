@@ -1,14 +1,11 @@
 ---
-name: Cleaner
+name: 7-cleaner
 description: Internal worker that simplifies and refines implementation for clarity, consistency, and maintainability.
 argument-hint: The current branch or latest commit to clean up
 model: Auto (copilot)
 tools: ['vscode', 'execute', 'read', 'agent', 'edit', 'search', 'web', 'github/*', 'todo']
-handoffs: 
-  - label: Document and Release
-    agent: DevOps
-    prompt: Write documentation and release the implementation
-    send: true
+user-invocable: false
+disable-model-invocation: true
 ---
 # Cleaner
 
