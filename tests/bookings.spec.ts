@@ -1,5 +1,4 @@
-import { test, expect } from "@playwright/test";
-import { randomUUID } from "crypto";
+import { test, expect, type APIRequestContext } from "@playwright/test";
 
 const ROCKETS_PATH = "/rockets";
 const LAUNCHES_PATH = "/launches";
@@ -7,16 +6,18 @@ const CUSTOMERS_PATH = "/customers";
 
 const FUTURE_DATE = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
-const createRocket = async (request: Parameters<typeof test>[0]["request"], capacity = 8) => {
+const randomId = () => globalThis.crypto.randomUUID();
+
+const createRocket = async (request: APIRequestContext, capacity = 8) => {
   const rocketResponse = await request.post(ROCKETS_PATH, {
-    data: { name: `Booking Rocket ${randomUUID()}`, range: "orbital", capacity },
+    data: { name: `Booking Rocket ${randomId()}`, range: "orbital", capacity },
   });
   expect(rocketResponse.status()).toBe(201);
   return rocketResponse.json();
 };
 
 const createLaunch = async (
-  request: Parameters<typeof test>[0]["request"],
+  request: APIRequestContext,
   rocketId: string,
   pricePerSeat = 250000,
   minimumPassengers = 2,
@@ -29,8 +30,8 @@ const createLaunch = async (
 };
 
 const createCustomer = async (
-  request: Parameters<typeof test>[0]["request"],
-  email = `booking.${Date.now()}.${randomUUID()}@example.com`,
+  request: APIRequestContext,
+  email = `booking.${Date.now()}.${randomId()}@example.com`,
 ) => {
   const customerResponse = await request.post(CUSTOMERS_PATH, {
     data: { email, name: "Booking User", phone: "+34-600-000-000" },
@@ -39,15 +40,57 @@ const createCustomer = async (
   return customerResponse.json();
 };
 
+const postBooking = (
+  request: APIRequestContext,
+  launchId: string,
+  customerEmail: string,
+  seats: number,
+) => request.post(`${LAUNCHES_PATH}/${launchId}/bookings`, { data: { customerEmail, seats } });
+
+const getLaunch = async (request: APIRequestContext, launchId: string) => {
+  const response = await request.get(`${LAUNCHES_PATH}/${launchId}`);
+  expect(response.status()).toBe(200);
+  return response.json();
+};
+
+const getLaunchBookings = async (request: APIRequestContext, launchId: string) => {
+  const response = await request.get(`${LAUNCHES_PATH}/${launchId}/bookings`);
+  expect(response.status()).toBe(200);
+  return response.json();
+};
+
+const transitionLaunchStatus = async (
+  request: APIRequestContext,
+  launchId: string,
+  status: string,
+) => {
+  const response = await request.patch(`${LAUNCHES_PATH}/${launchId}/status`, { data: { status } });
+  expect(response.status()).toBe(200);
+};
+
+const transitionLaunchStatuses = async (
+  request: APIRequestContext,
+  launchId: string,
+  statuses: readonly string[],
+) => {
+  for (const status of statuses) {
+    await transitionLaunchStatus(request, launchId, status);
+  }
+};
+
+const NON_BOOKABLE_STATUS_CASES = [
+  ["suspended", ["suspended"]],
+  ["successful", ["confirmed", "successful"]],
+  ["cancelled", ["cancelled"]],
+] as const;
+
 test.describe("Bookings API", () => {
   test("EARS-01/02: POST /launches/:id/bookings creates booking with persisted fields", async ({ request }) => {
     const rocket = await createRocket(request);
     const launch = await createLaunch(request, rocket.id, 300000, 2);
     const customer = await createCustomer(request);
 
-    const response = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
-      data: { customerEmail: customer.email, seats: 3 },
-    });
+    const response = await postBooking(request, launch.id, customer.email, 3);
 
     expect(response.status()).toBe(201);
     const body = await response.json();
@@ -64,9 +107,7 @@ test.describe("Bookings API", () => {
   test("EARS-03: POST /launches/:id/bookings with unknown launch returns 404", async ({ request }) => {
     const customer = await createCustomer(request);
 
-    const response = await request.post(`${LAUNCHES_PATH}/00000000-0000-0000-0000-000000000000/bookings`, {
-      data: { customerEmail: customer.email, seats: 1 },
-    });
+    const response = await postBooking(request, "00000000-0000-0000-0000-000000000000", customer.email, 1);
 
     expect(response.status()).toBe(404);
     const body = await response.json();
@@ -77,9 +118,7 @@ test.describe("Bookings API", () => {
     const rocket = await createRocket(request);
     const launch = await createLaunch(request, rocket.id);
 
-    const response = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
-      data: { customerEmail: `unknown.${Date.now()}@example.com`, seats: 1 },
-    });
+    const response = await postBooking(request, launch.id, `unknown.${Date.now()}@example.com`, 1);
 
     expect(response.status()).toBe(404);
     const body = await response.json();
@@ -91,9 +130,7 @@ test.describe("Bookings API", () => {
     const launch = await createLaunch(request, rocket.id);
     const customer = await createCustomer(request);
 
-    const response = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
-      data: { customerEmail: customer.email, seats: 0 },
-    });
+    const response = await postBooking(request, launch.id, customer.email, 0);
 
     expect(response.status()).toBe(400);
     const body = await response.json();
@@ -105,9 +142,7 @@ test.describe("Bookings API", () => {
     const launch = await createLaunch(request, rocket.id, 250000, 1);
     const customer = await createCustomer(request);
 
-    const response = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
-      data: { customerEmail: customer.email, seats: 5 },
-    });
+    const response = await postBooking(request, launch.id, customer.email, 5);
 
     expect(response.status()).toBe(409);
     const body = await response.json();
@@ -119,16 +154,12 @@ test.describe("Bookings API", () => {
     const launch = await createLaunch(request, rocket.id);
     const customer = await createCustomer(request);
 
-    const preLaunchResponse = await request.get(`${LAUNCHES_PATH}/${launch.id}`);
-    const preLaunch = await preLaunchResponse.json();
+    const preLaunch = await getLaunch(request, launch.id);
 
-    const bookingResponse = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
-      data: { customerEmail: customer.email, seats: 2 },
-    });
+    const bookingResponse = await postBooking(request, launch.id, customer.email, 2);
     expect(bookingResponse.status()).toBe(201);
 
-    const postLaunchResponse = await request.get(`${LAUNCHES_PATH}/${launch.id}`);
-    const postLaunch = await postLaunchResponse.json();
+    const postLaunch = await getLaunch(request, launch.id);
 
     expect(postLaunch.availableSeats).toBe(preLaunch.availableSeats - 2);
   });
@@ -137,16 +168,12 @@ test.describe("Bookings API", () => {
     const rocket = await createRocket(request, 6);
     const launch = await createLaunch(request, rocket.id);
 
-    const preLaunchResponse = await request.get(`${LAUNCHES_PATH}/${launch.id}`);
-    const preLaunch = await preLaunchResponse.json();
+    const preLaunch = await getLaunch(request, launch.id);
 
-    const failedBookingResponse = await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
-      data: { customerEmail: `missing.${Date.now()}@example.com`, seats: 2 },
-    });
+    const failedBookingResponse = await postBooking(request, launch.id, `missing.${Date.now()}@example.com`, 2);
     expect(failedBookingResponse.status()).toBe(404);
 
-    const postLaunchResponse = await request.get(`${LAUNCHES_PATH}/${launch.id}`);
-    const postLaunch = await postLaunchResponse.json();
+    const postLaunch = await getLaunch(request, launch.id);
 
     expect(postLaunch.availableSeats).toBe(preLaunch.availableSeats);
   });
@@ -154,22 +181,76 @@ test.describe("Bookings API", () => {
   test("EARS-09: GET /launches/:id/bookings returns launch bookings with HTTP 200", async ({ request }) => {
     const rocket = await createRocket(request);
     const launch = await createLaunch(request, rocket.id);
-    const customerA = await createCustomer(request, `a.${Date.now()}.${randomUUID()}@example.com`);
-    const customerB = await createCustomer(request, `b.${Date.now()}.${randomUUID()}@example.com`);
+    const customerA = await createCustomer(request, `a.${Date.now()}.${randomId()}@example.com`);
+    const customerB = await createCustomer(request, `b.${Date.now()}.${randomId()}@example.com`);
 
-    await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
-      data: { customerEmail: customerA.email, seats: 1 },
-    });
-    await request.post(`${LAUNCHES_PATH}/${launch.id}/bookings`, {
-      data: { customerEmail: customerB.email, seats: 2 },
-    });
+    await postBooking(request, launch.id, customerA.email, 1);
+    await postBooking(request, launch.id, customerB.email, 2);
 
-    const response = await request.get(`${LAUNCHES_PATH}/${launch.id}/bookings`);
+    const body = await getLaunchBookings(request, launch.id);
 
-    expect(response.status()).toBe(200);
-    const body = await response.json();
     expect(Array.isArray(body)).toBe(true);
     expect(body.length).toBe(2);
     expect(body.every((booking: { launchId: string }) => booking.launchId === launch.id)).toBe(true);
   });
+
+  test("EARS-01-status: booking on scheduled launch returns 201", async ({ request }) => {
+    const rocket = await createRocket(request);
+    const launch = await createLaunch(request, rocket.id);
+    const customer = await createCustomer(request);
+
+    const response = await postBooking(request, launch.id, customer.email, 1);
+
+    expect(response.status()).toBe(201);
+  });
+
+  test("EARS-02-status: booking on confirmed launch returns 201", async ({ request }) => {
+    const rocket = await createRocket(request);
+    const launch = await createLaunch(request, rocket.id);
+    const customer = await createCustomer(request);
+    await transitionLaunchStatus(request, launch.id, "confirmed");
+
+    const response = await postBooking(request, launch.id, customer.email, 1);
+
+    expect(response.status()).toBe(201);
+  });
+
+  test("EARS-08-status: confirmed launch still rejects overbooking", async ({ request }) => {
+    const rocket = await createRocket(request, 2);
+    const launch = await createLaunch(request, rocket.id, 250000, 1);
+    const customer = await createCustomer(request);
+    await transitionLaunchStatus(request, launch.id, "confirmed");
+
+    const response = await postBooking(request, launch.id, customer.email, 3);
+
+    expect(response.status()).toBe(409);
+    const body = await response.json();
+    expect(body.error).toContain("exceed");
+
+    const updatedLaunch = await getLaunch(request, launch.id);
+    expect(updatedLaunch.availableSeats).toBe(2);
+  });
+
+  for (const [status, transitions] of NON_BOOKABLE_STATUS_CASES) {
+    test(`booking on ${status} launch returns 409 and preserves state`, async ({ request }) => {
+      const rocket = await createRocket(request, 8);
+      const launch = await createLaunch(request, rocket.id);
+      const customer = await createCustomer(request);
+      await transitionLaunchStatuses(request, launch.id, transitions);
+
+      const preLaunch = await getLaunch(request, launch.id);
+
+      const failedResponse = await postBooking(request, launch.id, customer.email, 2);
+      expect(failedResponse.status()).toBe(409);
+
+      const body = await failedResponse.json();
+      expect(body.error).toContain(status);
+
+      const postLaunch = await getLaunch(request, launch.id);
+      expect(postLaunch.availableSeats).toBe(preLaunch.availableSeats);
+
+      const bookings = await getLaunchBookings(request, launch.id);
+      expect(bookings.length).toBe(0);
+    });
+  }
 });

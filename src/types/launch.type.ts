@@ -16,6 +16,11 @@ export const LAUNCH_STATUS_TRANSITIONS: Record<LaunchStatus, readonly LaunchStat
   cancelled: [],
 } as const;
 
+export const BOOKABLE_STATUSES = ["scheduled", "confirmed"] as const satisfies readonly LaunchStatus[];
+export type BookableStatus = (typeof BOOKABLE_STATUSES)[number];
+export const isBookableLaunchStatus = (status: LaunchStatus): status is BookableStatus =>
+  BOOKABLE_STATUSES.includes(status as BookableStatus);
+
 export const PRICE_PER_SEAT_MIN = 1;
 export const MINIMUM_PASSENGERS_MIN = 1;
 
