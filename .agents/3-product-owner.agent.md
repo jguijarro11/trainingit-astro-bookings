@@ -23,7 +23,6 @@ Act as a software analyst and product owner.
 ## Task
 
 - Write a detailed specification for a feature, bug fix, or enhancement.
-- Focus on a single requested backlog item and return the spec path plus a short summary of scope and acceptance criteria.
 
 ### Project Progress management 
 

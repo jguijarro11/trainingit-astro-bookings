@@ -30,7 +30,7 @@ AstroBookings provides operations managers with tools to manage the rocket fleet
 
 ### FR4: Customer Registration
 - Customers are identified by their email address and hold a name and phone number. Registration validates uniqueness by email, preventing duplicate customer records.
-- **Status**: InProgress
+- **Status**: Implemented
 
 ### FR5: Seat Booking
 - A registered customer can book one or more seats on a launch. The booking validates that the requested seat count does not exceed the available seats on the launch. Available seats are decremented upon successful booking.
