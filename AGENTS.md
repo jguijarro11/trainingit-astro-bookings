@@ -7,7 +7,7 @@
 - Launch status lifecycle: scheduled → confirmed → successful, or cancellation/suspension paths.
 - A customer is identified by their email address and has a name and phone number.
 - One customer can book multiple seats on a launch but cannot exceed the available seats.
-- Customers are billed upon booking, and payments are processed through a mock gateway.
+- Customers are billed upon booking; payment gateway adapter integration is planned.
 
 ## Technical Implementation
 
@@ -43,7 +43,7 @@ npm run test:coverage
 # Run the project (production, after build)
 npm start
 
-# Test the project (E2E)
+# Test the project (unit)
 npm test
 
 # Test the project (E2E smoke tests)
@@ -57,30 +57,37 @@ npm run test:smoke
 ├── package.json                # Node.js project config
 ├── tsconfig.json               # TypeScript compiler config
 ├── playwright.config.ts        # Playwright E2E test config
-├── .agents/
+├── project/
 │   ├── PRD.md                  # Product Requirements Document
-│   └── ADD.md                  # Architecture Design Document
-├── specs/                      # Feature specification documents
-│   ├── rockets.spec.md
-│   └── launches.spec.md
+│   ├── ADD.md                  # Architecture Design Document
+│   └── specs/                  # Feature specification documents
 ├── src/
 │   ├── index.ts                # Entry point
 │   ├── logger.ts               # Centralized logger utility
 │   ├── server.ts               # Express server setup and startup
 │   ├── repositories/           # Data access layer (in-memory)
 │   │   ├── rockets.repository.ts
-│   │   └── launches.repository.ts
+│   │   ├── launches.repository.ts
+│   │   ├── customers.repository.ts
+│   │   └── bookings.repository.ts
 │   ├── routes/                 # Express route handlers
 │   │   ├── health.router.ts
 │   │   ├── rockets.router.ts
-│   │   └── launches.router.ts
+│   │   ├── launches.router.ts
+│   │   └── customers.router.ts
 │   ├── services/               # Application services
 │   │   ├── rockets.service.ts
-│   │   └── launches.service.ts
+│   │   ├── launches.service.ts
+│   │   ├── customers.service.ts
+│   │   └── bookings.service.ts
 │   └── types/                  # TypeScript type definitions
 │       ├── rocket.type.ts
-│       └── launch.type.ts
+│       ├── launch.type.ts
+│       ├── customer.type.ts
+│       └── booking.type.ts
 ├── tests/                      # E2E / smoke tests (Playwright)
+│   ├── bookings.spec.ts
+│   ├── customers.spec.ts
 │   ├── launches.spec.ts
 │   ├── rockets.spec.ts
 │   └── smoke.spec.ts
@@ -90,11 +97,11 @@ npm run test:smoke
 
 ### Architecture Guardrails
 
-- Follow the modular layered architecture defined in `.agents/ADD.md`:
+- Follow the modular layered architecture defined in `project/ADD.md`:
     - `routes` for HTTP transport and validation only.
     - `services` for business rules and orchestration.
     - `repositories` for persistence concerns only.
-- Keep domain modules isolated by feature (`rockets`, `launches`, future `customers`, `bookings`, `payments`).
+- Keep domain modules isolated by feature (`rockets`, `launches`, `customers`, `bookings`, future `payments`).
 - Do not call repositories directly from routes.
 - Return typed domain/service errors and map them to HTTP responses at route level.
 - Keep launch lifecycle transitions centralized in `launches.service.ts` using explicit transition maps.
@@ -109,6 +116,20 @@ npm run test:smoke
     - Decrement `availableSeats` only after booking persistence.
 - Use adapter pattern for external integrations (starting with mock payment gateway) to decouple domain logic from providers.
 - Keep all code and documentation in English.
+
+### Skill Usage Matrix
+
+- `coding-express-api`: implement or modify REST routes/services with layered boundaries.
+- `coding-type-script`: enforce clean TypeScript conventions and strict typing.
+- `testing-unit-vitest` and `unit-testing`: create or update unit tests for business logic.
+- `testing-e2e-playwright`: validate acceptance criteria via end-to-end scenarios.
+- `generating-specs`: create feature/bug/chore specifications.
+- `planning-specs`: create ordered implementation plans from specs.
+- `generating-prd`: create or update product requirements.
+- `generating-add`: create or update architecture decisions and guardrails.
+- `releasing-version`: update release docs and version artifacts.
+- `commit-changes` and `merging-default`: standardize delivery integration flow.
+- `creating-issues` and `data-modeling`: issue definition and domain model support.
 
 ## Environment
 - Code and documentation must be in English.
@@ -146,6 +167,6 @@ Default git branch is `main`.
 
 ### Where to start
 
-- Read `.agents/project/PRD.md` for product goals.
-- Check `.agents/project/ADD.md` for architecture notes.
-- Specs live in `.agents/specs/` and guide implementation.
+- Read `project/PRD.md` for product goals.
+- Check `project/ADD.md` for architecture notes.
+- Specs live in `project/specs/` and guide implementation.

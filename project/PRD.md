@@ -8,7 +8,7 @@ AstroBookings provides operations managers with tools to manage the rocket fleet
 
 **Target users**: Operations managers (fleet and launch management) and customers (seat booking).
 
-**Scope**: REST API backend with in-memory storage, focused on fleet management, launch lifecycle, customer registration, seat booking, and mock payment processing.
+**Scope**: REST API backend with in-memory storage, focused on fleet management, launch lifecycle, customer registration, and seat booking. Payment adapter integration is planned.
 
 **Out of scope**: Authentication, authorization, persistent database, and production-grade security at the initial stages.
 
@@ -54,6 +54,10 @@ AstroBookings provides operations managers with tools to manage the rocket fleet
 
 ### TR3: Centralized Logging
 - All application events use a centralized logger with timestamped, level-prefixed output. Verbosity is controlled via the `LOG_LEVEL` environment variable (`error`, `warn`, `info`, `debug`; default `info`).
+- **Status**: Implemented
+
+### TR4: Layered Modular Architecture
+- The system follows a strict layered architecture where routes handle transport concerns, services own business logic and invariants, and repositories encapsulate in-memory persistence.
 - **Status**: Implemented
 
 ### TR5: Automated Testing with Playwright and Vitest

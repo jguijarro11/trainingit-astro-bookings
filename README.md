@@ -12,7 +12,7 @@ A **backend API** for offering bookings for rocket launches.
 
 - One customer can book multiple seats on a launch but cannot exceed the available seats.
 
-- Customers are billed upon booking, and payments are processed through a mock gateway.
+- Customers are billed upon booking; payment adapter integration is planned.
 
 > [!WARNING]
 > AstroBookings is a fictional space travel company.
@@ -179,6 +179,25 @@ Example:
 ```bash
 LOG_LEVEL=debug npm run dev
 ```
+
+---
+
+## Engineering Workflow (Skill-Aligned)
+
+This project follows a documentation-first and architecture-aligned workflow.
+
+1. Define or update requirements in `project/PRD.md`.
+2. Create a feature, bug, or chore specification in `project/specs/`.
+3. Create an implementation plan aligned with `project/ADD.md` constraints.
+4. Implement using layered architecture (`routes`, `services`, `repositories`, adapters).
+5. Validate with unit tests (Vitest) and smoke/E2E tests (Playwright) based on scope.
+6. Update architecture and agent documentation when workflow or constraints evolve.
+
+Primary references:
+- `project/PRD.md`
+- `project/ADD.md`
+- `AGENTS.md`
+- `.agents/skills/`
 
 ---
 

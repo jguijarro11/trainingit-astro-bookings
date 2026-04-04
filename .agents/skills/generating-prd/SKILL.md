@@ -37,7 +37,7 @@ Pay special attention to:
 
 ### PRD output template
 
-Read and follow any specific [PRD template](PRD.md) to generate the document.
+Read and follow any specific [PRD template](PRD.template.md) to generate the document.
 
 ## Steps to follow:
 
@@ -53,7 +53,7 @@ Read and follow any specific [PRD template](PRD.md) to generate the document.
 
 ### Step 2: Drafting the PRD
 
-- [ ] Draft the PRD following the [PRD template](PRD.md)
+- [ ] Draft the PRD following the [PRD template](PRD.template.md)
   - Do not write more than necessary, keep it concise and to the point.
   - Specifically cover:
     - Between 3 and 9 Functional Requirements (less is better)

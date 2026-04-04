@@ -1,6 +1,6 @@
 # AstroBookings Architectural Design Document
 
-AstroBookings is a modular Express + TypeScript backend API for managing rockets, launches, and future customer bookings with clear domain boundaries and in-memory persistence.
+AstroBookings is a modular Express + TypeScript backend API for managing rockets, launches, customers, and bookings with clear domain boundaries and in-memory persistence.
 
 ### Table of Contents
 - [Stack and tooling](#stack-and-tooling)
@@ -8,12 +8,16 @@ AstroBookings is a modular Express + TypeScript backend API for managing rockets
   - [Development Tools](#development-tools)
 - [Systems Architecture](#systems-architecture)
 - [Software Architecture](#software-architecture)
+- [Architecture Guardrails](#architecture-guardrails)
+- [Testing Strategy and Quality Gates](#testing-strategy-and-quality-gates)
+- [Skill-Aligned Delivery Workflow](#skill-aligned-delivery-workflow)
 - [Architecture Decisions Record (ADR)](#architecture-decisions-record-adr)
   - [ADR 1: Layered modular monolith](#adr-1-layered-modular-monolith)
   - [ADR 2: In-memory repositories as persistence boundary](#adr-2-in-memory-repositories-as-persistence-boundary)
   - [ADR 3: Launch capacity snapshot and lifecycle invariants](#adr-3-launch-capacity-snapshot-and-lifecycle-invariants)
   - [ADR 4: Payment-first booking flow with gateway adapter](#adr-4-payment-first-booking-flow-with-gateway-adapter)
   - [ADR 5: Vitest for colocated unit testing](#adr-5-vitest-for-colocated-unit-testing)
+  - [ADR 6: Skill-driven delivery governance](#adr-6-skill-driven-delivery-governance)
 
 ## Stack and tooling
 
@@ -35,7 +39,7 @@ AstroBookings is a modular Express + TypeScript backend API for managing rockets
   - Run unit tests in development mode: `npm run test:dev`
   - Run unit tests once: `npm run test:unit`
   - Run unit coverage: `npm run test:coverage`
-  - Run E2E tests: `npm test`
+  - Run unit tests via default script: `npm test`
   - Run smoke tests: `npm run test:smoke`
 - CI/CD: Not mandatory in current scope; recommended pipeline is build + unit tests + smoke tests.
 
@@ -79,8 +83,8 @@ Current and planned modules:
 - `health`: technical health endpoint.
 - `rockets`: rocket catalog and capacity constraints.
 - `launches`: schedule, update, and status transitions.
-- `customers` (planned): customer registration and uniqueness by email.
-- `bookings` (planned): seat reservation per launch and customer.
+- `customers`: customer registration and uniqueness by email.
+- `bookings`: seat reservation per launch and customer.
 - `payments` (planned): payment authorization/capture through a mock provider.
 
 Layer responsibilities:
@@ -110,6 +114,56 @@ Planned booking flow:
 3. Request payment authorization/capture through payment adapter.
 4. Persist booking only on successful payment.
 5. Decrement launch available seats atomically in service transaction boundary (single-threaded process assumption for in-memory stage).
+
+## Architecture Guardrails
+
+- Enforce one-way dependencies: `routes` -> `services` -> `repositories`/`adapters`.
+- Keep HTTP concerns in routes only (validation, transport mapping, status codes).
+- Keep business rules, invariants, and orchestration in services.
+- Keep repositories limited to storage concerns; no business logic in repositories.
+- Access external providers only through adapters.
+- Keep domain/service errors typed and map them at route level.
+- Preserve seat invariants:
+  - `totalSeats` immutable after launch creation.
+  - `availableSeats` never negative.
+- Enforce booking flow order:
+  1. Validate customer and launch constraints.
+  2. Validate seat availability.
+  3. Process payment through adapter.
+  4. Persist booking only if payment succeeds.
+  5. Decrement `availableSeats` after booking persistence.
+
+## Testing Strategy and Quality Gates
+
+Testing levels:
+- Unit tests (Vitest): service and utility business rules in isolation.
+- E2E/smoke tests (Playwright): API contracts and cross-module flows.
+
+Quality gates:
+- Feature or refactor:
+  1. `npm run build`
+  2. `npm run test:unit`
+  3. `npm run test:smoke` (for impacted flows)
+- Bug fix:
+  1. Add failing regression test.
+  2. Run build and affected test scope.
+
+## Skill-Aligned Delivery Workflow
+
+Delivery stages:
+1. Product alignment: generate or update PRD.
+2. Scope definition: create feature/bug/chore spec.
+3. Implementation design: create implementation plan aligned with ADD.
+4. Implementation: apply layered architecture with strict boundaries.
+5. Verification: unit tests first, then E2E/smoke based on impact.
+6. Release hygiene: update AGENTS, changelog, and version artifacts.
+
+Skills mapping:
+- Product/architecture: `generating-prd`, `generating-add`.
+- Scope/planning: `generating-specs`, `planning-specs`.
+- Implementation: `coding-express-api`, `coding-type-script`.
+- Verification: `testing-unit-vitest`, `unit-testing`, `testing-e2e-playwright`.
+- Delivery/maintenance: `commit-changes`, `releasing-version`, `merging-default`.
 
 ## Architecture Decisions Record (ADR)
 
@@ -142,3 +196,9 @@ Planned booking flow:
 - **Status**: Accepted
 - **Context**: TypeScript + ES module runtime needs zero-config ESM support, while Playwright already covers E2E behavior in `tests/`.
 - **Consequences**: Faster TDD feedback loops, improved test discoverability near source files, and simple mocking for isolated business-rule verification.
+
+### ADR 6: Skill-driven delivery governance
+- **Decision**: Adopt a skill-aligned, artifact-driven workflow as the default delivery model.
+- **Status**: Accepted
+- **Context**: The project uses an explicit skills catalog and role-based agents to standardize delivery from requirements to release.
+- **Consequences**: Higher consistency and traceability across changes, with a documentation maintenance cost when skills evolve.

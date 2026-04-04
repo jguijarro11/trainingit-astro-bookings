@@ -11,8 +11,8 @@ The plan will be a set of ordered steps, each with specific tasks to complete.
 
 ## Context
 
-- [The Specification file](../../specs/?short-name.spec.md)
-- [Architectural Design Document](../../ADD.md)
+- [The Specification file]({Specs_Folder}/<spec-slug-id>.spec.md)
+- [Architectural Design Document]({Project_Folder}/ADD.md)
 
 ## Steps to follow:
 
@@ -27,8 +27,8 @@ The plan will be a set of ordered steps, each with specific tasks to complete.
  - [ ] For each step, list specific tasks (<= 5) needed to complete it.
  - [ ] Ensure tasks are clear and actionable.
 ### Step 4: Write the implementation plan.
- - [ ] Follow the format in the [Implementation Plan template](PLAN.md).
- - [ ] Write the plan to a markdown file at `../../specs/<plan-slug-id>.plan.md`.
+ - [ ] Follow the format in the [Implementation Plan template](PLAN.template.md).
+ - [ ] Write the plan to a markdown file at `{Plans_Folder}/<plan-slug-id>.plan.md`.
 ### Step 5: Review and finalize the plan.
  - [ ] Ensure the plan is comprehensive and feasible.
  - [ ] Mark the specification status as "Planned" at the top of the spec file.

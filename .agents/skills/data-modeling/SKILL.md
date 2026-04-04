@@ -13,9 +13,9 @@ RESPECT the current ER model if it exists, and only add or modify entities and r
 
 ## Context
 
-- [The Specification file](../../specs/?short-name.spec.md)
-- [Architectural Design Document](../../ADD.md)
-- [Current ER Model](./ERM.md) (if exists)
+- [The Specification file]({Specs_Folder}/?short-name.spec.md)
+- [Architectural Design Document]({Project_Folder}/ADD.md)
+- [Current ER Model]({Project_Folder}/ERM.md) (if exists)
 
 ## Steps to follow:
 
@@ -27,7 +27,7 @@ RESPECT the current ER model if it exists, and only add or modify entities and r
 ### Step 3: Define relationships and cardinalities.
  - [ ] Identify the relationships between entities and specify their cardinalities (e.g., one-to-many, many-to-many).
 ### Step 4: Write the ER model.
- - [ ] Follow the format in the [ER Model template](ERM.md).
+ - [ ] Follow the format in the [ER Model template](ERM.template.md).
 ### Step 5: Review and finalize the ER model.
  - [ ] Ensure the ER model is comprehensive and accurately reflects the specifications and ADD.
 

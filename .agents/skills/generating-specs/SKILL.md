@@ -19,7 +19,7 @@ Do not write any code or tests, just the specification.
 
 ## Context
 
-- [Product Requirements Document](../../PRD.md) 
+- [Product Requirements Document]({Project_Folder}/PRD.md) 
 
 The feature, bug correction, or enhancement must be provided in the input.
 
@@ -32,7 +32,7 @@ Types of specifications to generate include:
 
 ### Specification output template
 
-Read and follow the specific [spec template](spec.md) to generate the document.
+Read and follow the specific [spec template](spec.template.md) to generate the document.
 
 ## Steps to follow:
 
@@ -61,7 +61,7 @@ Read and follow the specific [spec template](spec.md) to generate the document.
 ### Step 8: Write the Specification: 
   - [ ] Use short sentences and bullet points where possible.
   - [ ] Keep the specification concise but complete.
-  - [ ] Follow the [spec template](spec.md)
+  - [ ] Follow the [spec template](spec.template.md)
   - [ ] Write it in markdown format at `{Specs_Folder}/<spec-slug-id>.spec.md`.
 
 ## Output Checklist
