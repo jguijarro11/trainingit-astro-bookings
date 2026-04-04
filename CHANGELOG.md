@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-04-04
+
+### Added
+
+- **Customer Registration API** (`/customers`) with the following operations:
+  - `POST /customers` - Register a customer with `email`, `name`, and `phone` (returns 201).
+  - `GET /customers` - List all registered customers (returns 200).
+  - `GET /customers/:email` - Get a customer by email (returns 200).
+- Customer domain model and DTOs in `src/types/customer.type.ts`.
+- In-memory customers repository with normalized email matching (`trim + lowercase`) to enforce uniqueness.
+- Customers service layer for registration and retrieval workflows.
+- Unit tests for customers service with Vitest.
+- End-to-end Playwright coverage for customer registration acceptance criteria EARS-01 to EARS-10.
+
+### Changed
+
+- Test runner setup now uses Vitest for unit tests (`npm test`) and keeps Playwright for smoke/E2E tests (`npm run test:smoke`).
+- Request body normalization helper extracted to shared utility in `src/utils/request.ts` and reused by routers.
+
 ## [1.2.0] - 2026-04-02
 
 ### Added

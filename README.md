@@ -92,6 +92,34 @@ A **backend API** for offering bookings for rocket launches.
 - `suspended` → `scheduled` | `cancelled`
 - `successful` and `cancelled` are terminal states.
 
+### Customers
+
+| Method | Path                  | Description                    | Status |
+|--------|-----------------------|--------------------------------|--------|
+| GET    | `/customers`          | List all registered customers  | 200    |
+| GET    | `/customers/:email`   | Get a customer by email        | 200    |
+| POST   | `/customers`          | Register a new customer        | 201    |
+
+**Customer model:**
+
+```json
+{
+  "email": "jane.doe@example.com",
+  "name": "Jane Doe",
+  "phone": "+34-600-123-456"
+}
+```
+
+- `email`: unique customer identifier (normalized by trim + lowercase).
+- `name`: required non-empty string.
+- `phone`: required non-empty string.
+
+**Validation and conflicts:**
+
+- Duplicate customer email returns `409`.
+- Invalid or missing `email`, `name`, or `phone` returns `400`.
+- Unknown customer email on `GET /customers/:email` returns `404`.
+
 ---
 
 ## Logging
