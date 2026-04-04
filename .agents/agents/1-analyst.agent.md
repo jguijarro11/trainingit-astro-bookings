@@ -1,18 +1,11 @@
 ---
-name: Analyst
+name: 1-analyst
 description: Internal worker that generates or refines the Product Requirements Document for the orchestrator.
 argument-hint: Provide an idea, briefing document or the current project to start the analysis.
 model: Auto (copilot)
 tools: ['vscode/askQuestions', 'read', 'edit', 'search', 'web', 'todo']
-handoffs:
-  - label: Commit documentation
-    agent: Analyst
-    prompt: Commit the PRD.md file to the repository
-    send: true
-  - label: Architectural Design
-    agent: Architect
-    prompt: Write the Architectural Design Document and the AGENTS.md rules
-    send: true
+user-invocable: false
+disable-model-invocation: true
 ---
 # Analyst
 

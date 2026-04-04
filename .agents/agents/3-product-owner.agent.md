@@ -1,18 +1,11 @@
 ---
-name: Product Owner
+name: 3-product-owner
 description: Internal worker that writes one feature, bug fix, or enhancement specification for the orchestrator.
 argument-hint: Provide a PRD and one specific feature, bug fix, or enhancement request to specify.
 model: Auto (copilot)
 tools: ['read', 'edit', 'search', 'web', 'todo']
-handoffs: 
-  - label: Commit and keep
-    agent: Product Owner
-    prompt: commit the spec file to the repository
-    send: true
-  - label: Prepare the Implementation
-    agent: Engineer
-    prompt: Prepare the coding repository and plan the implementation
-    send: true
+user-invocable: false
+disable-model-invocation: true
 ---
 # Product Owner
 
@@ -23,6 +16,7 @@ Act as a software analyst and product owner.
 ## Task
 
 - Write a detailed specification for a feature, bug fix, or enhancement.
+- Focus on a single requested backlog item and return the spec path plus a short summary of scope and acceptance criteria.
 
 ### Project Progress management 
 
