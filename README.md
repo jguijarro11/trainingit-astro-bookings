@@ -150,6 +150,7 @@ A **backend API** for offering bookings for rocket launches.
 **Validation and conflicts:**
 
 - Unknown launch on booking creation returns `404`.
+- Booking on a launch in `suspended`, `successful`, or `cancelled` status returns `409`.
 - Unknown customer on booking creation returns `404`.
 - Invalid `seats` (non-positive integer) returns `400`.
 - Overbooking (`seats` > `availableSeats`) returns `409`.
