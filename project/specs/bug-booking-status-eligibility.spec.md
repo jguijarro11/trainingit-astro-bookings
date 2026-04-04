@@ -1,8 +1,8 @@
 # Booking Status Eligibility Specification
 
 - **Type**: bug
-- **Status**: Verified
-- **Feature Status**: InProgress
+- **Status**: Released
+- **Feature Status**: Implemented
 
 ## Problem Description
 
@@ -49,14 +49,14 @@ The booking flow currently validates launch existence, customer existence, seat 
 
 ## Acceptance Criteria
 
-- [ ] **[EARS-01]** WHEN `POST /launches/:id/bookings` is received for a launch in `scheduled` status with valid customer and seats, THE AstroBookings API SHALL create the booking and return HTTP 201.
-- [ ] **[EARS-02]** WHEN `POST /launches/:id/bookings` is received for a launch in `confirmed` status with valid customer and seats, THE AstroBookings API SHALL create the booking and return HTTP 201.
-- [ ] **[EARS-03]** IF a booking request is received for a launch in `suspended` status, THEN THE AstroBookings API SHALL reject the request with HTTP 409 and a descriptive error message.
-- [ ] **[EARS-04]** IF a booking request is received for a launch in `successful` status, THEN THE AstroBookings API SHALL reject the request with HTTP 409 and a descriptive error message.
-- [ ] **[EARS-05]** IF a booking request is received for a launch in `cancelled` status, THEN THE AstroBookings API SHALL reject the request with HTTP 409 and a descriptive error message.
-- [ ] **[EARS-06]** IF a booking request is rejected due to launch status eligibility, THEN THE AstroBookings API SHALL NOT persist a booking record.
-- [ ] **[EARS-07]** IF a booking request is rejected due to launch status eligibility, THEN THE AstroBookings API SHALL NOT decrement launch `availableSeats`.
-- [ ] **[EARS-08]** WHEN the booking request is valid and eligible, THE AstroBookings API SHALL preserve existing seat validation and overbooking protection behavior.
+- [x] **[EARS-01]** WHEN `POST /launches/:id/bookings` is received for a launch in `scheduled` status with valid customer and seats, THE AstroBookings API SHALL create the booking and return HTTP 201.
+- [x] **[EARS-02]** WHEN `POST /launches/:id/bookings` is received for a launch in `confirmed` status with valid customer and seats, THE AstroBookings API SHALL create the booking and return HTTP 201.
+- [x] **[EARS-03]** IF a booking request is received for a launch in `suspended` status, THEN THE AstroBookings API SHALL reject the request with HTTP 409 and a descriptive error message.
+- [x] **[EARS-04]** IF a booking request is received for a launch in `successful` status, THEN THE AstroBookings API SHALL reject the request with HTTP 409 and a descriptive error message.
+- [x] **[EARS-05]** IF a booking request is received for a launch in `cancelled` status, THEN THE AstroBookings API SHALL reject the request with HTTP 409 and a descriptive error message.
+- [x] **[EARS-06]** IF a booking request is rejected due to launch status eligibility, THEN THE AstroBookings API SHALL NOT persist a booking record.
+- [x] **[EARS-07]** IF a booking request is rejected due to launch status eligibility, THEN THE AstroBookings API SHALL NOT decrement launch `availableSeats`.
+- [x] **[EARS-08]** WHEN the booking request is valid and eligible, THE AstroBookings API SHALL preserve existing seat validation and overbooking protection behavior.
 
 ## Notes
 

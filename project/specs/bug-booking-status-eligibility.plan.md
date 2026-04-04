@@ -3,11 +3,12 @@
 ### Environment Context
 
 - **Branch**: `fix/booking-status-eligibility`
+- **Status**: ✅ Fully implemented and released
 - **Affected files**:
-  - `src/types/launch.type.ts` — add `BOOKABLE_STATUSES` constant
-  - `src/services/bookings.service.ts` — insert status eligibility guard
-  - `src/services/bookings.service.spec.ts` — add unit test cases for non-eligible statuses
-  - `tests/bookings.spec.ts` — add E2E test cases for EARS-01 through EARS-07 (status-specific)
+  - `src/types/launch.type.ts` — added `BOOKABLE_STATUSES`, `BookableStatus`, and `isBookableLaunchStatus` guard
+  - `src/services/bookings.service.ts` — status eligibility guard inserted at fail-fast position
+  - `src/services/bookings.service.spec.ts` — unit tests for all 5 statuses + call-order test
+  - `tests/bookings.spec.ts` — E2E tests covering EARS-01-status through EARS-08-status and all non-bookable cases
 - **ADD guardrails**:
   - Business rules live exclusively in `services`; routes only map errors to HTTP responses.
   - Seat decrement and booking persistence must NOT occur on rejected requests.
@@ -20,9 +21,10 @@
 
 Add a typed constant that declares which launch statuses allow bookings, keeping the rule co-located with the domain types.
 
-- [ ] Open `src/types/launch.type.ts`.
-- [ ] Export a `const BOOKABLE_STATUSES` array containing `"scheduled"` and `"confirmed"`.
-- [ ] Derive a `BookableStatus` type from the array (using `typeof BOOKABLE_STATUSES[number]`).
+- [x] Open `src/types/launch.type.ts`.
+- [x] Export a `const BOOKABLE_STATUSES` array containing `"scheduled"` and `"confirmed"`.
+- [x] Derive a `BookableStatus` type from the array (using `typeof BOOKABLE_STATUSES[number]`).
+- [x] _(extra)_ Export `isBookableLaunchStatus(status): status is BookableStatus` type-guard function.
 
 ---
 
@@ -30,9 +32,9 @@ Add a typed constant that declares which launch statuses allow bookings, keeping
 
 Insert the validation immediately after the launch existence check and before the customer/seat checks, following the fail-fast order.
 
-- [ ] Import `BOOKABLE_STATUSES` from `../types/launch.type.js`.
-- [ ] After the `if (!launch)` guard, add: `if (!BOOKABLE_STATUSES.includes(launch.status as any))` → return `{ statusCode: 409, message: "Launch is not open for bookings (status: <status>)." }`.
-- [ ] Verify that `bookingsRepository.create` and `launchesRepository.decrementSeats` are never reached when the guard fires (review call order).
+- [x] Import `isBookableLaunchStatus` from `../types/launch.type.js`.
+- [x] After the `if (!launch)` guard, call `isBookableLaunchStatus(launch.status)` → return `{ statusCode: 409, message: "Launch is not open for bookings (status: ${launch.status})." }` on falsy.
+- [x] Verified: `bookingsRepository.create` and `launchesRepository.decrementSeats` are never reached when the guard fires.
 
 ---
 
@@ -40,12 +42,11 @@ Insert the validation immediately after the launch existence check and before th
 
 Cover all new paths introduced by the status eligibility guard.
 
-- [ ] Add a test fixture `SUSPENDED_LAUNCH` (status `"suspended"`), `SUCCESSFUL_LAUNCH` (status `"successful"`), `CANCELLED_LAUNCH` (status `"cancelled"`).
-- [ ] Add test: returns 409 for `suspended` launch — assert `statusCode 409`, `create` not called, `decrementSeats` not called.
-- [ ] Add test: returns 409 for `successful` launch — same assertions.
-- [ ] Add test: returns 409 for `cancelled` launch — same assertions.
-- [ ] Add test: happy-path still passes for `confirmed` launch (complementary to existing `scheduled` test).
-- [ ] Run `npm run test:unit` and confirm all specs pass with no regressions.
+- [x] Added fixtures `SUSPENDED_LAUNCH`, `SUCCESSFUL_LAUNCH`, `CANCELLED_LAUNCH` and `NON_BOOKABLE_LAUNCH_CASES` table.
+- [x] `it.each(NON_BOOKABLE_LAUNCH_CASES)` covers 409 + no `create` + no `decrementSeats` for all three ineligible statuses.
+- [x] Added test: happy-path passes for `confirmed` launch (EARS-02).
+- [x] Added test: `preserves overbooking protection for confirmed launch (EARS-08)` (regression coverage).
+- [x] `npm run test:unit` passes with no regressions.
 
 ---
 
@@ -53,14 +54,13 @@ Cover all new paths introduced by the status eligibility guard.
 
 Validate acceptance criteria EARS-01 through EARS-07 via HTTP using a live server. The E2E tests require transitioning launch state via `PATCH /launches/:id/status`.
 
-- [ ] Add helper `transitionLaunchStatus(request, launchId, status)` that calls `PATCH /launches/:id/status`.
-- [ ] Add test **EARS-01-status**: create launch (defaults to `scheduled`), book seats → expect HTTP 201 (confirms existing behavior is preserved).
-- [ ] Add test **EARS-02-status**: transition launch to `confirmed`, book seats → expect HTTP 201.
-- [ ] Add test **EARS-03-status**: transition launch to `suspended`, attempt booking → expect HTTP 409 and descriptive error message.
-- [ ] Add test **EARS-04-status**: transition launch to `successful`, attempt booking → expect HTTP 409 and descriptive error message.
-- [ ] Add test **EARS-05-status**: create and cancel launch, attempt booking → expect HTTP 409 and descriptive error message.
-- [ ] Verify that `availableSeats` is NOT decremented after a rejected booking (reuse pattern from existing EARS-08 test).
-- [ ] Run `npm run test:smoke` and confirm all E2E scenarios pass.
+- [x] Added helpers `transitionLaunchStatus` and `transitionLaunchStatuses` (chains multiple transitions, needed for `successful`).
+- [x] Added `NON_BOOKABLE_STATUS_CASES` table driving parameterised tests for `suspended`, `successful`, `cancelled`.
+- [x] **EARS-01-status**: `scheduled` launch → HTTP 201.
+- [x] **EARS-02-status**: transition to `confirmed`, book → HTTP 201.
+- [x] **EARS-08-status**: `confirmed` launch still rejects overbooking (HTTP 409, `availableSeats` unchanged).
+- [x] Parameterised test for each non-bookable status: HTTP 409, error body contains status string, `availableSeats` unchanged, no booking record persisted (EARS-03/04/05/06/07).
+- [x] `npm run test:smoke` passes with no regressions.
 
 ---
 
@@ -68,10 +68,10 @@ Validate acceptance criteria EARS-01 through EARS-07 via HTTP using a live serve
 
 Final review to ensure correctness, no side effects, and spec traceability.
 
-- [ ] Run full test suite: `npm run test:unit && npm run test:smoke`.
-- [ ] Confirm that existing tests (EARS-01 through EARS-08 in the original `bookings.spec.ts`) still pass without modification.
-- [ ] Update spec status to `"Planned"` → `"InProgress"` when implementation begins.
-- [ ] Update `CHANGELOG.md` with a `fix:` entry referencing the bug slug.
+- [x] Full test suite `npm run test:unit && npm run test:smoke` passes.
+- [x] Existing EARS-01 through EARS-08 tests pass without modification.
+- [x] Spec status updated to **Released / Implemented**.
+- [x] `CHANGELOG.md` updated with `fix:` entry for `bug-booking-status-eligibility`.
 
 ---
 
@@ -105,8 +105,8 @@ Final review to ensure correctness, no side effects, and spec traceability.
 
 | # | Type | Description |
 |---|---|---|
-| B1 | **Assumption** | `PATCH /launches/:id/status` endpoint exists and correctly transitions to `confirmed`, `suspended`, `successful`, and `cancelled`. Verify via `tests/launches.spec.ts` or manual smoke before writing E2E tests. |
-| B2 | **Assumption** | Transitioning to `successful` from a `scheduled` launch requires going through `confirmed` first (per `LAUNCH_STATUS_TRANSITIONS` in `launch.type.ts`). E2E helper must chain transitions accordingly. |
-| B3 | **Assumption** | No authentication or authorization is required; endpoints are open. |
-| B4 | **Out of scope** | Payment adapter integration is excluded from this fix; the guard fires before any payment call would occur. |
-| B5 | **No DB migration** | In-memory store requires no migration; fix is purely logic layer. |
+| B1 | **Resolved** | `PATCH /launches/:id/status` exists and was used successfully in E2E tests. |
+| B2 | **Resolved** | `transitionLaunchStatuses` helper chains `["confirmed", "successful"]` for the `successful` case. |
+| B3 | **Resolved** | No auth required; all endpoints are open. |
+| B4 | **Out of scope** | Payment adapter integration excluded; guard fires before any payment call. |
+| B5 | **Resolved** | No migration required; fix is purely logic-layer. |
