@@ -55,3 +55,9 @@ AstroBookings provides operations managers with tools to manage the rocket fleet
 ### TR3: Centralized Logging
 - All application events use a centralized logger with timestamped, level-prefixed output. Verbosity is controlled via the `LOG_LEVEL` environment variable (`error`, `warn`, `info`, `debug`; default `info`).
 - **Status**: Implemented
+
+### TR4: Unit and Smoke Testing Strategy
+- Unit tests must be implemented with Vitest and executed with `npm test` (single run) and `npm run test:dev` (watch mode).
+- Smoke/E2E validation must continue using Playwright through `npm run test:smoke`.
+- Test suites must stay isolated so unit runs do not execute Playwright specs.
+- **Status**: Implemented

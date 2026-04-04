@@ -20,7 +20,7 @@ AstroBookings is a modular Express + TypeScript backend API for managing rockets
 - Language: TypeScript 5.8 (strict typing)
 - Runtime: Node.js
 - Framework: Express 5.2
-- Testing: Node.js built-in test runner (unit), Playwright 1.59 (smoke/E2E)
+- Testing: Vitest 4 (unit), Playwright 1.59 (smoke/E2E)
 - Storage: In-memory repositories (no external database yet)
 - Logging: Centralized logger with level filtering through `LOG_LEVEL`
 
@@ -30,7 +30,8 @@ AstroBookings is a modular Express + TypeScript backend API for managing rockets
   - Install dependencies: `npm install`
   - Build: `npm run build`
   - Run in development: `npm run dev`
-  - Run tests: `npm test`
+  - Run unit tests in development mode: `npm run test:dev`
+  - Run unit tests: `npm test`
   - Run smoke tests: `npm run test:smoke`
 - CI/CD: Not mandatory in current scope; recommended pipeline is build + unit tests + smoke tests.
 

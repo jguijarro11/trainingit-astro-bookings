@@ -16,7 +16,7 @@
 - **Framework**: Express 5.2
 - **Database**: In-memory (no database required at the initial stage)
 - **Security**: None required at the initial stage
-- **Testing**: Node.js built-in test runner (unit) + Playwright 1.59 (E2E/smoke)
+- **Testing**: Vitest 4 (unit) + Playwright 1.59 (E2E/smoke)
 - **Logging**: Centralized console logger (`src/logger.ts`) with level filtering via `LOG_LEVEL`
 
 ### Development workflow
@@ -30,6 +30,9 @@ npm run build
 
 # Run the project (development)
 npm run dev
+
+# Run unit tests in development mode (watch)
+npm run test:dev
 
 # Run the project (production, after build)
 npm start
@@ -74,7 +77,9 @@ npm run test:smoke
 ├── tests/                      # E2E / smoke tests (Playwright)
 │   ├── launches.spec.ts
 │   ├── rockets.spec.ts
-│   └── smoke.spec.ts
+│   ├── smoke.spec.ts
+│   └── unit/                   # Unit tests (Vitest)
+│       └── logger.test.ts
 ├── test-results/                # Test run outputs
 └── CHANGELOG.md                # Project changelog
 ```

@@ -4,6 +4,7 @@ const BASE_URL = "http://localhost:3000";
 
 export default defineConfig({
   testDir: "./tests",
+  testMatch: "**/*.spec.ts",
   use: {
     baseURL: BASE_URL,
   },
