@@ -1,7 +1,8 @@
 # Customer Registration API Specification
 
 - **Type**: feat
-- **Status**: Planned
+- **Status**: Released
+- **Feature Status**: Implemented
 
 ## Problem Description
 
@@ -91,16 +92,16 @@ The product needs a reliable way to register customers before they can book seat
 
 ## Acceptance Criteria
 
-- [ ] **[EARS-01]** WHEN a `POST /customers` request is received with a valid `email`, `name`, and `phone`, THE AstroBookings API SHALL create the customer and return it with HTTP 201.
-- [ ] **[EARS-02]** WHEN a customer is created, THE AstroBookings API SHALL persist `email`, `name`, and `phone` and use `email` as the unique customer identifier.
-- [ ] **[EARS-03]** IF a `POST /customers` request is received with an `email` that is already registered, THEN THE AstroBookings API SHALL reject it with HTTP 409 and a descriptive error message.
-- [ ] **[EARS-04]** IF a `POST /customers` request is received with an `email` that only differs from an existing customer by casing or surrounding whitespace, THEN THE AstroBookings API SHALL reject it with HTTP 409 and a descriptive error message.
-- [ ] **[EARS-05]** IF a `POST /customers` request is received with a missing, blank, or invalid `email`, THEN THE AstroBookings API SHALL reject it with HTTP 400 and a descriptive error message.
-- [ ] **[EARS-06]** IF a `POST /customers` request is received with a missing or blank `name`, THEN THE AstroBookings API SHALL reject it with HTTP 400 and a descriptive error message.
-- [ ] **[EARS-07]** IF a `POST /customers` request is received with a missing or blank `phone`, THEN THE AstroBookings API SHALL reject it with HTTP 400 and a descriptive error message.
-- [ ] **[EARS-08]** WHEN a `GET /customers` request is received, THE AstroBookings API SHALL return all registered customers with HTTP 200.
-- [ ] **[EARS-09]** WHEN a `GET /customers/:email` request is received with an existing email, THE AstroBookings API SHALL return the matching customer with HTTP 200.
-- [ ] **[EARS-10]** IF a request targeting a specific customer is received with an email that is not registered, THEN THE AstroBookings API SHALL respond with HTTP 404 and a descriptive error message.
+- [x] **[EARS-01]** WHEN a `POST /customers` request is received with a valid `email`, `name`, and `phone`, THE AstroBookings API SHALL create the customer and return it with HTTP 201.
+- [x] **[EARS-02]** WHEN a customer is created, THE AstroBookings API SHALL persist `email`, `name`, and `phone` and use `email` as the unique customer identifier.
+- [x] **[EARS-03]** IF a `POST /customers` request is received with an `email` that is already registered, THEN THE AstroBookings API SHALL reject it with HTTP 409 and a descriptive error message.
+- [x] **[EARS-04]** IF a `POST /customers` request is received with an `email` that only differs from an existing customer by casing or surrounding whitespace, THEN THE AstroBookings API SHALL reject it with HTTP 409 and a descriptive error message.
+- [x] **[EARS-05]** IF a `POST /customers` request is received with a missing, blank, or invalid `email`, THEN THE AstroBookings API SHALL reject it with HTTP 400 and a descriptive error message.
+- [x] **[EARS-06]** IF a `POST /customers` request is received with a missing or blank `name`, THEN THE AstroBookings API SHALL reject it with HTTP 400 and a descriptive error message.
+- [x] **[EARS-07]** IF a `POST /customers` request is received with a missing or blank `phone`, THEN THE AstroBookings API SHALL reject it with HTTP 400 and a descriptive error message.
+- [x] **[EARS-08]** WHEN a `GET /customers` request is received, THE AstroBookings API SHALL return all registered customers with HTTP 200.
+- [x] **[EARS-09]** WHEN a `GET /customers/:email` request is received with an existing email, THE AstroBookings API SHALL return the matching customer with HTTP 200.
+- [x] **[EARS-10]** IF a request targeting a specific customer is received with an email that is not registered, THEN THE AstroBookings API SHALL respond with HTTP 404 and a descriptive error message.
 
 ## Notes
 
