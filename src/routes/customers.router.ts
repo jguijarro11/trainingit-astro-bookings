@@ -1,13 +1,9 @@
 import { Router, type Request, type Response } from "express";
 import { EMAIL_REGEX, type CreateCustomerDto } from "../types/customer.type.js";
 import * as customersService from "../services/customers.service.js";
+import { asJsonRecord } from "../utils/request.js";
 
 export const customersRouter = Router();
-
-type JsonRecord = Record<string, unknown>;
-
-const asJsonRecord = (value: unknown): JsonRecord =>
-  (value as JsonRecord) ?? {};
 
 const validateCreateDto = (body: unknown): CreateCustomerDto | string => {
   const { email, name, phone } = asJsonRecord(body);
@@ -46,11 +42,11 @@ customersRouter.post("/", (req: Request, res: Response) => {
     return;
   }
 
-  const created = customersService.createCustomer(result);
-  if (typeof created === "string") {
-    res.status(409).json({ error: created });
+  const customer = customersService.createCustomer(result);
+  if (typeof customer === "string") {
+    res.status(409).json({ error: customer });
     return;
   }
 
-  res.status(201).json(created);
+  res.status(201).json(customer);
 });

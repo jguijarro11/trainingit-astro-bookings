@@ -7,17 +7,13 @@ import {
   type UpdateRocketDto,
 } from "../types/rocket.type.js";
 import * as rocketsService from "../services/rockets.service.js";
+import { asJsonRecord } from "../utils/request.js";
 
 export const rocketsRouter = Router();
-
-type JsonRecord = Record<string, unknown>;
 
 const RANGE_ERROR_MESSAGE = `range must be one of: ${ROCKET_RANGES.join(", ")}.`;
 const getCapacityErrorMessage = (): string =>
   `capacity must be an integer between ${ROCKET_CAPACITY_MIN} and ${ROCKET_CAPACITY_MAX}.`;
-
-const asJsonRecord = (value: unknown): JsonRecord =>
-  (value as JsonRecord) ?? {};
 
 const isValidRange = (range: unknown): range is (typeof ROCKET_RANGES)[number] =>
   ROCKET_RANGES.includes(range as (typeof ROCKET_RANGES)[number]);

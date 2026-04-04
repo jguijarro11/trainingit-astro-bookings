@@ -6,4 +6,4 @@ export type Customer = {
   phone: string;
 };
 
-export type CreateCustomerDto = Omit<Customer, never>;
+export type CreateCustomerDto = Customer;
