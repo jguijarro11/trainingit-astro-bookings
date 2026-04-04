@@ -13,6 +13,7 @@ AstroBookings is a modular Express + TypeScript backend API for managing rockets
   - [ADR 2: In-memory repositories as persistence boundary](#adr-2-in-memory-repositories-as-persistence-boundary)
   - [ADR 3: Launch capacity snapshot and lifecycle invariants](#adr-3-launch-capacity-snapshot-and-lifecycle-invariants)
   - [ADR 4: Payment-first booking flow with gateway adapter](#adr-4-payment-first-booking-flow-with-gateway-adapter)
+  - [ADR 5: Vitest for colocated unit testing](#adr-5-vitest-for-colocated-unit-testing)
 
 ## Stack and tooling
 
@@ -20,18 +21,21 @@ AstroBookings is a modular Express + TypeScript backend API for managing rockets
 - Language: TypeScript 5.8 (strict typing)
 - Runtime: Node.js
 - Framework: Express 5.2
-- Testing: Vitest 4 (unit), Playwright 1.59 (smoke/E2E)
+- Testing: Vitest 4 (colocated unit), Playwright 1.59 (smoke/E2E)
 - Storage: In-memory repositories (no external database yet)
 - Logging: Centralized logger with level filtering through `LOG_LEVEL`
 
 ### Development Tools
 - Package manager and scripts: npm
+- Test runner and coverage: Vitest 4 + `@vitest/coverage-v8`
 - Typical workflow:
   - Install dependencies: `npm install`
   - Build: `npm run build`
   - Run in development: `npm run dev`
   - Run unit tests in development mode: `npm run test:dev`
-  - Run unit tests: `npm test`
+  - Run unit tests once: `npm run test:unit`
+  - Run unit coverage: `npm run test:coverage`
+  - Run E2E tests: `npm test`
   - Run smoke tests: `npm run test:smoke`
 - CI/CD: Not mandatory in current scope; recommended pipeline is build + unit tests + smoke tests.
 
@@ -47,6 +51,7 @@ flowchart LR
       routes[Routes Layer]
       services[Services Layer]
       repos[Repositories Layer]
+      unit[Unit Tests Layer\nVitest colocated `*.spec.ts`]
       domain[Domain Types and Rules]
       logger[Central Logger]
       payment[Payment Gateway Adapter]
@@ -57,6 +62,8 @@ flowchart LR
     services --> repos
     services --> domain
     services --> payment
+    unit --> services
+    unit --> domain
     routes --> logger
     services --> logger
 
@@ -129,3 +136,9 @@ Planned booking flow:
 - **Status**: Accepted
 - **Context**: PRD requires billing at booking time and no seat decrement on payment failure.
 - **Consequences**: Prevents unpaid reservations and keeps side effects controlled; requires idempotent handling strategy when moving beyond mock provider.
+
+### ADR 5: Vitest for colocated unit testing
+- **Decision**: Use Vitest for service and utility unit tests with colocated `*.spec.ts` files.
+- **Status**: Accepted
+- **Context**: TypeScript + ES module runtime needs zero-config ESM support, while Playwright already covers E2E behavior in `tests/`.
+- **Consequences**: Faster TDD feedback loops, improved test discoverability near source files, and simple mocking for isolated business-rule verification.

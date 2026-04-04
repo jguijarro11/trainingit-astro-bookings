@@ -56,8 +56,9 @@ AstroBookings provides operations managers with tools to manage the rocket fleet
 - All application events use a centralized logger with timestamped, level-prefixed output. Verbosity is controlled via the `LOG_LEVEL` environment variable (`error`, `warn`, `info`, `debug`; default `info`).
 - **Status**: Implemented
 
-### TR4: Unit and Smoke Testing Strategy
-- Unit tests must be implemented with Vitest and executed with `npm test` (single run) and `npm run test:dev` (watch mode).
+### TR5: Automated Testing with Playwright and Vitest
+ - Unit tests must be implemented with Vitest and executed with `npm run test:unit` (single run) and `npm run test:dev` (watch mode).
 - Smoke/E2E validation must continue using Playwright through `npm run test:smoke`.
 - Test suites must stay isolated so unit runs do not execute Playwright specs.
+- Unit tests validate business logic in services and utilities using Vitest with mocked dependencies for isolated testing.
 - **Status**: Implemented

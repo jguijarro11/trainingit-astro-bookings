@@ -10,7 +10,7 @@ const loadLogger = async (logLevel?: string) => {
   }
 
   vi.resetModules();
-  return import("../../src/logger.js");
+  return import("./logger.js");
 };
 
 afterEach(() => {
